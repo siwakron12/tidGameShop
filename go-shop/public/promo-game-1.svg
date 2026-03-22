@@ -1,0 +1,26 @@
+<svg width="640" height="360" viewBox="0 0 640 360" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg1" x1="0" y1="0" x2="640" y2="360" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#300815"/>
+      <stop offset="0.55" stop-color="#8B0E2B"/>
+      <stop offset="1" stop-color="#F05322"/>
+    </linearGradient>
+    <radialGradient id="glow1" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(510 55) rotate(142) scale(220 160)">
+      <stop stop-color="#FFD166" stop-opacity="0.8"/>
+      <stop offset="1" stop-color="#FFD166" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="640" height="360" rx="24" fill="url(#bg1)"/>
+  <rect x="26" y="26" width="588" height="308" rx="20" stroke="white" stroke-opacity="0.2" stroke-width="2"/>
+  <ellipse cx="510" cy="55" rx="220" ry="160" fill="url(#glow1)"/>
+
+  <path d="M0 280C95 235 175 220 280 250C385 280 515 280 640 250V360H0V280Z" fill="white" fill-opacity="0.08"/>
+
+  <text x="48" y="90" fill="#FFD9E0" font-family="Segoe UI, Arial, sans-serif" font-size="18" letter-spacing="3">LIMITED EVENT</text>
+  <text x="48" y="160" fill="white" font-family="Segoe UI, Arial, sans-serif" font-size="58" font-weight="700">BATTLE PASS</text>
+  <text x="48" y="200" fill="#FFE6EB" font-family="Segoe UI, Arial, sans-serif" font-size="24">Top up now and unlock bonus rewards</text>
+
+  <rect x="48" y="242" width="210" height="52" rx="12" fill="#FF2847"/>
+  <text x="70" y="275" fill="white" font-family="Segoe UI, Arial, sans-serif" font-size="20" font-weight="700">TOP UP NOW</text>
+</svg>
