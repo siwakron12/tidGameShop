@@ -9,7 +9,7 @@ export default function UserLayout({ children }: UserLayoutProps) {
   return (
     <div className="min-h-screen bg-[#000000] text-white">
       <Navbar />
-      <div>{children}</div>
+      <div>{children} </div> 
     </div>
   );
 }
