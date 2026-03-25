@@ -4,8 +4,42 @@
   color-scheme: light;
 }
 
+html,
+body {
+  width: 100%;
+  overflow-x: hidden;
+  background: #090909;
+}
+
 body {
   margin: 0;
-  background: #ffffff;
   color: #0f172a;
+}
+
+.shiny-text {
+  display: inline-block;
+  color: transparent;
+  background-image: repeating-linear-gradient(
+    110deg,
+    #a0a0a0 0%,
+    #a0a0a0 18%,
+    #ffffff 24%,
+    #ffffff 30%,
+    #a0a0a0 36%,
+    #a0a0a0 54%
+  );
+  background-size: 220% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  animation: shiny-move 5.2s linear infinite;
+}
+
+@keyframes shiny-move {
+  from {
+    background-position: 0 0;
+  }
+
+  to {
+    background-position: -220% 0;
+  }
 }

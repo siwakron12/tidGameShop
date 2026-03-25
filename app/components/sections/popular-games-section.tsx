@@ -24,7 +24,7 @@ export default function PopularGamesSection() {
         <div className="mb-7 flex items-end justify-between">
           <div>
             <p className="text-xs font-semibold tracking-[0.2em] text-[#ff5f74]">RECOMMENDED TOP-UP</p>
-            <h2 className="mt-2 text-2xl font-bold text-white sm:text-3xl">เติมเกมแนะนำ</h2>
+            <h2 className="mt-2 text-2xl font-bold text-white sm:text-3xl">เติมเกมยอดฮิต</h2>
           </div>
           <p className="hidden text-sm text-white/60 sm:block">เลือกเกมที่ต้องการเติมได้ทันที</p>
         </div>
