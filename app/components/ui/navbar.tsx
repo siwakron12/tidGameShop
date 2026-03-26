@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { motion } from "framer-motion";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import AuthModal from "./auth-modal";
@@ -9,7 +10,6 @@ const navItems = [
   { label: "หน้าแรก", href: "/", match: ["/"] },
   { label: "เติมเงิน", href: "/topup", match: ["/topup"] },
   { label: "เกมทั้งหมด", href: "/products", match: ["/products"] },
-
 ];
 
 const gameList = [
@@ -30,6 +30,9 @@ const gameList = [
 export default function Navbar() {
   const pathname = usePathname();
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [authModalTab, setAuthModalTab] = useState<"login" | "register">(
+    "login",
+  );
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -38,7 +41,9 @@ export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
 
   const searchSuggestions = gameList
-    .filter((game) => game.toLowerCase().includes(searchQuery.trim().toLowerCase()))
+    .filter((game) =>
+      game.toLowerCase().includes(searchQuery.trim().toLowerCase()),
+    )
     .slice(0, 6);
 
   useEffect(() => {
@@ -59,7 +64,9 @@ export default function Navbar() {
   return (
     <header
       className={`fixed inset-x-0 top-0 z-50 border-b border-white/5 backdrop-blur transition-colors ${
-        isScrolled ? "bg-black/55 shadow-[0_8px_30px_rgba(0,0,0,0.2)]" : "bg-red-400/10"
+        isScrolled
+          ? "bg-black/55 shadow-[0_8px_30px_rgba(0,0,0,0.2)]"
+          : "bg-red-400/10"
       }`}
     >
       <div className="mx-auto flex h-16 lg:w-3/4 w-full items-center gap-2 px-3 sm:h-20 sm:gap-3 sm:px-6 lg:gap-6 lg:px-8">
@@ -67,7 +74,7 @@ export default function Navbar() {
           href="/"
           className="shrink-0 whitespace-nowrap text-lg font-extrabold tracking-tight text-[#ff1436] sm:text-2xl"
         >
-           TitgameShop
+          TitgameShop
         </Link>
 
         <nav className="hidden items-center gap-5 lg:flex">
@@ -75,13 +82,25 @@ export default function Navbar() {
             <Link
               key={item.label}
               href={item.href}
-              className={`border-b-2 pb-1 text-base font-bold tracking-wide transition ${
-                item.match.some((path) => pathname === path || pathname.startsWith(`${path}/`))
-                  ? "border-[#ff1436] text-[#ff1436]"
-                  : "border-transparent text-white/75 hover:text-white"
+              className={`relative pb-1 text-base font-bold tracking-wide transition ${
+                item.match.some(
+                  (path) =>
+                    pathname === path || pathname.startsWith(`${path}/`),
+                )
+                  ? "text-[#ff1436]"
+                  : "text-white/75 hover:text-white"
               }`}
             >
-              {item.label}
+              {item.match.some(
+                (path) => pathname === path || pathname.startsWith(`${path}/`),
+              ) && (
+                <motion.span
+                  layoutId="desktop-nav-active"
+                  transition={{ type: "spring", stiffness: 520, damping: 38 }}
+                  className="absolute bottom-0 left-0 h-0.5 w-full rounded-full bg-[#ff1436]"
+                />
+              )}
+              <span className="relative z-10">{item.label}</span>
             </Link>
           ))}
         </nav>
@@ -154,20 +173,28 @@ export default function Navbar() {
             </svg>
           </button> */}
 
-          <button
-            type="button"
-            className="hidden text-base font-bold text-white/85 transition hover:text-white md:inline-flex"
-          >
-            TH
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setIsAuthModalOpen(true)}
-            className="inline-flex h-10 shrink-0 cursor-pointer items-center rounded-xl bg-[#ff001f] px-3 text-[11px] font-black tracking-wide whitespace-nowrap text-white transition hover:bg-[#ff2742] sm:h-11 sm:px-5 sm:text-sm"
-          >
-            เข้าสู่ระบบ
-          </button>
+          <div className="space-x-3">
+            <button
+              type="button"
+              onClick={() => {
+                setAuthModalTab("login");
+                setIsAuthModalOpen(true);
+              }}
+              className="cursor-pointer text-white/90 transition hover:text-white "
+            >
+              เข้าสู่ระบบ
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setAuthModalTab("register");
+                setIsAuthModalOpen(true);
+              }}
+              className="inline-flex h-10 shrink-0 cursor-pointer items-center rounded-xl bg-[#ff001f] px-3 text-[11px] font-black tracking-wide whitespace-nowrap text-white transition hover:bg-[#ff2742] sm:h-11 sm:px-5 sm:text-sm"
+            >
+              สมัครสมาชิก
+            </button>
+          </div>
 
           <button
             type="button"
@@ -203,7 +230,9 @@ export default function Navbar() {
 
       <div
         className={`overflow-hidden border-t border-white/10 bg-black/35 px-3 transition-all duration-300 backdrop-blur-xl sm:hidden ${
-          isMobileSearchOpen ? "max-h-80 py-2 opacity-100" : "max-h-0 py-0 opacity-0"
+          isMobileSearchOpen
+            ? "max-h-80 py-2 opacity-100"
+            : "max-h-0 py-0 opacity-0"
         }`}
       >
         <label className="flex h-10 w-full items-center gap-2 rounded-xl bg-[#353535] px-3 text-white/60">
@@ -224,7 +253,9 @@ export default function Navbar() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             onFocus={() => setIsMobileSearchFocused(true)}
-            onBlur={() => setTimeout(() => setIsMobileSearchFocused(false), 120)}
+            onBlur={() =>
+              setTimeout(() => setIsMobileSearchFocused(false), 120)
+            }
             className="w-full bg-transparent text-sm text-white outline-none placeholder:text-white/45"
             autoFocus={isMobileSearchOpen}
           />
@@ -252,7 +283,9 @@ export default function Navbar() {
 
       <div
         className={`overflow-hidden border-t border-white/10 bg-black/35 px-4 transition-all duration-300 backdrop-blur-xl lg:hidden ${
-          isMobileMenuOpen ? "max-h-72 py-3 opacity-100" : "max-h-0 py-0 opacity-0"
+          isMobileMenuOpen
+            ? "max-h-72 py-3 opacity-100"
+            : "max-h-0 py-0 opacity-0"
         }`}
       >
         <nav className="mx-auto flex w-full max-w-400 flex-col gap-2">
@@ -261,7 +294,10 @@ export default function Navbar() {
               key={`mobile-${item.label}`}
               href={item.href}
               className={`rounded-lg px-3 py-2 text-sm font-semibold transition ${
-                item.match.some((path) => pathname === path || pathname.startsWith(`${path}/`))
+                item.match.some(
+                  (path) =>
+                    pathname === path || pathname.startsWith(`${path}/`),
+                )
                   ? "bg-[#ff001f]/20 text-[#ff2742]"
                   : "text-white/80 hover:bg-white/10 hover:text-white"
               }`}
@@ -272,7 +308,11 @@ export default function Navbar() {
         </nav>
       </div>
 
-      <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
+      <AuthModal
+        isOpen={isAuthModalOpen}
+        initialTab={authModalTab}
+        onClose={() => setIsAuthModalOpen(false)}
+      />
     </header>
   );
 }

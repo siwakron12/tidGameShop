@@ -6,21 +6,15 @@ import { Autoplay } from "swiper/modules";
 import "swiper/css";
 
 const games = [
-  { id: 1, name: "Aftersoul", image: "🎮" },
-  { id: 2, name: "Arena of Valor", image: "⚔️" },
-  { id: 3, name: "Free Fire", image: "🔥" },
-  { id: 4, name: "PUBG Mobile", image: "🎯" },
-  { id: 5, name: "League of Legends", image: "👑" },
-  { id: 6, name: "Linker", image: "🔗" },
-  { id: 7, name: "Garena", image: "🎪" },
-  { id: 8, name: "Valorant", image: "🎨" },
-  { id: 9, name: "Roblox", image: "🧱" },
-  { id: 10, name: "Genshin Impact", image: "✨" },
-  { id: 11, name: "Honkai", image: "⭐" },
-  { id: 12, name: "Ragnarok Online", image: "⚡" },
-  { id: 13, name: "Ellin", image: "🌟" },
-  { id: 14, name: "NCSoft", image: "🎭" },
-  { id: 15, name: "Game Five", image: "🎲" },
+  { id: 1, name: "FF", image: "https://media.pocketgamer.biz/images/114095/77750/freefire_s470.jpg" },
+  { id: 2, name: "MLBB", image: "https://i.pinimg.com/474x/82/55/03/8255033248d018b6c5f3d460b2deec16.jpg" },
+  { id: 3, name: "Call of Duty", image: "https://cdn-www.bluestacks.com/bs-images/9c392a2f1834f7f9a279c87ef7d2683a.png" },
+  { id: 4, name: "Black Clover", image: "https://i.wazt.net/topup/product-image/bcm.png" },
+  { id: 5, name: "Delta Force", image: "https://play-lh.googleusercontent.com/utG-EAUp93da_Bp0-AeOS7M8xYWRcSYhjIcxKFxhfcSU32moPHIhL9IS-AT20gaJ8w" },
+  { id: 6, name: "Haikyu Fly", image: "https://play-lh.googleusercontent.com/gkwNDUNhTjZVSsjwsc9z-nJVJvDcWX_1XYQ3ZOCIZvdVWw1Gpjw4WGBe3Zv4PZzWTwE" },
+  { id: 7, name: "Undawn", image: "https://play-lh.googleusercontent.com/ni5062FXeA6oZ_INb45nEpVEk8OClJnCjUnlYrgKQmijtIQA4OKq7J2w-uJOuu5xfg" },
+  { id: 8, name: "Valorant", image: "https://images.steamusercontent.com/ugc/1009310639741043947/C4780FD7B53B39EFE4A536842FC1281A48A1256F/?imw=512&&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=false" },
+  { id: 9, name: "rov", image: "https://play-lh.googleusercontent.com/2RrzGOcirTAU4vPzLiZ3Us4k-E-RtPVBbWB-RkU5FAT9gVrTlUJL0nYVN6VlpSbGq_uHHaLsvwvtxm1Mjirxpg=w1024" },
 ];
 
 export default function HeroSection() {
@@ -55,9 +49,10 @@ export default function HeroSection() {
             </Link>
             <Link
               href="/checkout"
-              className="inline-flex h-11 w-full items-center justify-center rounded-xl border border-white/20 px-5 text-sm font-semibold text-white/90 transition hover:border-white/40 hover:text-white sm:w-auto"
+              className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-white/20 px-5 text-sm font-semibold text-white/90 transition hover:border-white/40 hover:text-white sm:w-auto"
             >
-              วิธีเติมเงิน
+             
+              ติดต่อเรา 
             </Link>
           </div>
         
@@ -98,7 +93,7 @@ export default function HeroSection() {
                     <div className="h-20 rounded-2xl border border-white/10 bg-white/5 p-2 backdrop-blur-sm transition hover:border-white/20 hover:bg-white/10 lg:h-24 lg:p-3">
                       <div className="flex h-full items-center justify-center">
                         <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-linear-to-br from-[#ff1536]/20 to-[#ff7a00]/10 text-2xl shrink-0 lg:h-14 lg:w-14 lg:text-3xl">
-                          {game.image}
+                          <img src={game.image} alt={game.name} className="h-auto w-full max-h-full rounded-2xl object-contain" />
                         </div>
                       </div>
                     </div>

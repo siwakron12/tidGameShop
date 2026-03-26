@@ -133,7 +133,7 @@ export default function TopupPage() {
             </div>
 
             {/* Payment Method Details */}
-            <div className={`mb-8 rounded-2xl border-2 border-[#ff1536]/30 bg-linear-to-br ${currentMethod?.color} p-0.5`}>
+            <div className={`mb-8 rounded-2xl border-2  ${currentMethod?.color} p-0.5`}>
               <div className="rounded-2xl bg-[#0a0a0a] p-6">
                 <h3 className="mb-4 flex items-center gap-2 text-lg font-semibold text-white">
                   <span className="text-2xl">{currentMethod?.icon}</span>
@@ -144,12 +144,12 @@ export default function TopupPage() {
                   <div>
                     <label className="block text-sm font-medium text-white/80">
                       {currentMethod?.id === "truewallet"
-                        ? "เบอร์โทรศัพท์ True Wallet"
+                        ? " True Wallet"
                         : "เบอร์โทรศัพท์ PromptPay"}
                     </label>
-                    <input
+                    <input  
                       type="tel"
-                      placeholder="เช่น 0812345678"
+                      placeholder="ใส่ vocherCode true wallet "
                       value={phoneOrId}
                       onChange={(e) => setPhoneOrId(e.target.value)}
                       className="mt-2 w-full rounded-lg border border-white/15 bg-[#151515] px-4 py-3 text-white placeholder-white/40 focus:border-[#ff1536] focus:outline-none"
@@ -169,7 +169,7 @@ export default function TopupPage() {
 
             {/* Summary & Checkout */}
             <div className="rounded-2xl border border-white/15 bg-[#0a0a0a] p-6">
-              <div className="mb-6 space-y-3 border-b border-white/10 pb-6">
+              {/* <div className="mb-6 space-y-3 border-b border-white/10 pb-6">
                 <div className="flex items-center justify-between">
                   <span className="text-white/70">วิธีการเติม:</span>
                   <span className="font-semibold text-white">{currentMethod?.name}</span>
@@ -186,7 +186,7 @@ export default function TopupPage() {
                   <span className="font-semibold text-white">รวมทั้งสิ้น:</span>
                   <span className="text-3xl font-bold text-white">{selectedAmount.toLocaleString()} ฿</span>
                 </div>
-              </div>
+              </div> */}
 
               <button
                 onClick={handleProceed}

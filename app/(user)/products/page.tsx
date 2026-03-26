@@ -13,18 +13,15 @@ type GameItem = {
 };
 
 const gameList: GameItem[] = [
-  { id: 1, name: "ROV", publisher: "Garena", category: "MOBA", priceStart: 10, badge: "HOT", icon: "⚔️" },
-  { id: 2, name: "Free Fire", publisher: "Garena", category: "Shooter", priceStart: 20, badge: "HOT", icon: "🔥" },
-  { id: 3, name: "PUBG Mobile", publisher: "Tencent", category: "Shooter", priceStart: 15, icon: "🎯" },
-  { id: 4, name: "Valorant", publisher: "Riot Games", category: "Shooter", priceStart: 50, badge: "NEW", icon: "🎮" },
-  { id: 5, name: "League of Legends", publisher: "Riot Games", category: "MOBA", priceStart: 45, icon: "👑" },
-  { id: 6, name: "Genshin Impact", publisher: "HoYoverse", category: "RPG", priceStart: 35, badge: "HOT", icon: "✨" },
-  { id: 7, name: "Honkai: Star Rail", publisher: "HoYoverse", category: "RPG", priceStart: 35, icon: "🌌" },
-  { id: 8, name: "Roblox", publisher: "Roblox Corp", category: "Sandbox", priceStart: 25, icon: "🧱" },
-  { id: 9, name: "Minecraft", publisher: "Mojang", category: "Sandbox", priceStart: 55, badge: "NEW", icon: "⛏️" },
-  { id: 10, name: "Point Blank", publisher: "Zepetto", category: "Shooter", priceStart: 10, icon: "🕹️" },
-  { id: 11, name: "FIFA Online 4", publisher: "EA Sports", category: "Sandbox", priceStart: 30, icon: "⚽" },
-  { id: 12, name: "Identity V", publisher: "NetEase", category: "RPG", priceStart: 25, icon: "🃏" },
+    { id: 1, name: "ROV", publisher: "Garena", category: "MOBA", priceStart: 10, badge: "HOT", icon: "https://play-lh.googleusercontent.com/2RrzGOcirTAU4vPzLiZ3Us4k-E-RtPVBbWB-RkU5FAT9gVrTlUJL0nYVN6VlpSbGq_uHHaLsvwvtxm1Mjirxpg=w1024" },
+  { id: 2, name: "FF", publisher: "Garena", category: "Shooter", priceStart: 20, badge: "HOT", icon: "https://media.pocketgamer.biz/images/114095/77750/freefire_s470.jpg" },
+  { id: 3, name: "MLBB", publisher: "Moonton", category: "MOBA", priceStart: 10, badge: "HOT", icon: "https://i.pinimg.com/474x/82/55/03/8255033248d018b6c5f3d460b2deec16.jpg" },
+  { id: 4, name: "Call of Duty", publisher: "Activision", category: "Shooter", priceStart: 30, badge: "NEW", icon: "https://cdn-www.bluestacks.com/bs-images/9c392a2f1834f7f9a279c87ef7d2683a.png" },
+  { id: 5, name: "Black Clover", publisher: "Vic Game Studios", category: "RPG", priceStart: 35, icon: "https://i.wazt.net/topup/product-image/bcm.png" },
+  { id: 6, name: "Delta Force", publisher: "Tencent", category: "Shooter", priceStart: 25, icon: "https://play-lh.googleusercontent.com/utG-EAUp93da_Bp0-AeOS7M8xYWRcSYhjIcxKFxhfcSU32moPHIhL9IS-AT20gaJ8w" },
+  { id: 7, name: "Haikyu Fly", publisher: "Garena", category: "Sandbox", priceStart: 20, icon: "https://play-lh.googleusercontent.com/gkwNDUNhTjZVSsjwsc9z-nJVJvDcWX_1XYQ3ZOCIZvdVWw1Gpjw4WGBe3Zv4PZzWTwE" },
+  { id: 8, name: "Undawn", publisher: "Level Infinite", category: "RPG", priceStart: 25, icon: "https://play-lh.googleusercontent.com/ni5062FXeA6oZ_INb45nEpVEk8OClJnCjUnlYrgKQmijtIQA4OKq7J2w-uJOuu5xfg" },
+  { id: 9, name: "Valorant", publisher: "Riot Games", category: "Shooter", priceStart: 50, badge: "NEW", icon: "https://images.steamusercontent.com/ugc/1009310639741043947/C4780FD7B53B39EFE4A536842FC1281A48A1256F/?imw=512&&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=false" },
 ];
 
 const allCategories = ["ทั้งหมด", "MOBA", "Shooter", "RPG", "Sandbox"] as const;
@@ -110,20 +107,42 @@ export default function ProductsPage() {
           </p>
         </div>
 
-        <div className="grid grid-cols-3 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4 xl:grid-cols-6">
-          {filteredGames.map((game) => (
-            <article
-              key={game.id}
-              className="group rounded-2xl border border-white/10 bg-black/35 p-3 backdrop-blur-sm transition hover:-translate-y-0.5 hover:border-white/25 hover:bg-black/45"
+        {filteredGames.length === 0 ? (
+          <div className="rounded-2xl border border-white/10 bg-black/30 p-8 text-center backdrop-blur-sm">
+            <p className="text-lg font-semibold text-white">ไม่พบเกมที่ค้นหา</p>
+            <p className="mt-2 text-sm text-white/65">ลองเปลี่ยนคำค้นหา หรือเลือกหมวดหมู่อื่น</p>
+            <button
+              type="button"
+              onClick={() => {
+                setQuery("");
+                setCategory("ทั้งหมด");
+              }}
+              className="mt-4 inline-flex rounded-xl bg-[#ff1738] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#ff2f4d]"
             >
-              <div className="mb-3 flex h-24 items-center justify-center rounded-xl border border-white/10 bg-[#140b0d] sm:h-28">
-                <span className="text-4xl sm:text-5xl">{game.icon}</span>
-              </div>
+              ล้างตัวกรอง
+            </button>
+          </div>
+        ) : (
+          <div className="grid grid-cols-3 gap-3 md:grid-cols-6 sm:gap-4 lg:grid-cols-6 xl:grid-cols-7">
+            {filteredGames.map((game) => (
+              <article
+                key={game.id}
+                className="group rounded-2xl    border w-fit border-white/10 bg-black/35 p-3 backdrop-blur-sm transition hover:-translate-y-0.5 hover:border-white/25 hover:bg-black/45"
+              >
+                <div className="relative mb-3 flex h-fit items-center justify-center rounded-xl border border-white/10 bg-[#140b0d] sm:h-28">
+                  <img src={game.icon} alt={game.name} className="h-auto w-full max-h-full rounded-2xl object-contain brightness-75" />
+                  <div className="absolute inset-0 flex items-center justify-center rounded-xl bg-black/70">
+                    <span className="rounded-full border border-white/20 bg-black/60 px-2.5 py-1 text-[10px] font-semibold tracking-wide text-white/90 ">
+                      ยังไม่พร้อมใช้งาน
+                    </span>
+                  </div>
+                </div>
 
-              <p className="truncate text-center text-sm font-semibold text-white sm:text-base">{game.name}</p>
-            </article>
-          ))}
-        </div>
+                <p className="truncate text-center text-sm font-semibold text-white sm:text-base">{game.name}</p>
+              </article>
+            ))}
+          </div>
+        )}
       </section>
     </main>
   );

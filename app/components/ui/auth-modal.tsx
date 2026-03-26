@@ -3,17 +3,29 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "framer-motion";
+import { User } from "lucide-react";
 
 type AuthModalProps = {
   isOpen: boolean;
   onClose: () => void;
+  initialTab?: AuthTab;
 };
 
 type AuthTab = "login" | "register";
 
-export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
+export default function AuthModal({
+  isOpen,
+  onClose,
+  initialTab = "login",
+}: AuthModalProps) {
   const [activeTab, setActiveTab] = useState<AuthTab>("login");
   const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    if (isOpen) {
+      setActiveTab(initialTab);
+    }
+  }, [isOpen, initialTab]);
 
   useEffect(() => {
     setMounted(true);
@@ -64,7 +76,12 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
             transition={{ type: "spring", stiffness: 280, damping: 26 }}
           >
             <div className="mb-5 flex items-center justify-between">
-              <h2 className="text-xl font-bold text-white">บัญชีผู้ใช้</h2>
+              <div className="flex items-center  gap-3">
+                <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-white/20 text-white">
+                  <User size={16} strokeWidth={2.2} />
+                </span>
+                <h2 className="text-xl font-bold text-white">บัญชีผู้ใช้</h2>
+              </div>
               <button
                 type="button"
                 onClick={onClose}
@@ -74,29 +91,31 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
               </button>
             </div>
 
-            <div className="mb-5 grid grid-cols-2 gap-2 rounded-xl bg-white/5 p-1">
-              <button
-                type="button"
-                onClick={() => setActiveTab("login")}
-                className={`rounded-lg px-3 py-2 text-sm font-bold transition ${
-                  activeTab === "login"
-                    ? "bg-[#ff001f] text-white"
-                    : "text-white/70 hover:bg-white/10 hover:text-white"
-                }`}
-              >
-                เข้าสู่ระบบ
-              </button>
-              <button
-                type="button"
-                onClick={() => setActiveTab("register")}
-                className={`rounded-lg px-3 py-2 text-sm font-bold transition ${
-                  activeTab === "register"
-                    ? "bg-[#ff001f] text-white"
-                    : "text-white/70 hover:bg-white/10 hover:text-white"
-                }`}
-              >
-                สมัครสมาชิก
-              </button>
+            <div className="mb-5">
+              <div className="grid grid-cols-2 text-center">
+                <button
+                  type="button"
+                  onClick={() => setActiveTab("login")}
+                  className={`border-b-2 px-3 cursor-pointer py-2 text-sm font-semibold transition ${
+                    activeTab === "login"
+                      ? "border-[#ff001f] text-white"
+                      : "border-transparent text-white/55 hover:text-white/80"
+                  }`}
+                >
+                  เข้าสู่ระบบ
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab("register")}
+                  className={`border-b-2 px-3 cursor-pointer py-2 text-sm font-semibold transition ${
+                    activeTab === "register"
+                      ? "border-[#ff001f] text-white"
+                      : "border-transparent text-white/55 hover:text-white/80"
+                  }`}
+                >
+                  สมัครสมาชิก
+                </button>
+              </div>
             </div>
 
             <AnimatePresence mode="wait" initial={false}>
