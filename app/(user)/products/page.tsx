@@ -13,15 +13,15 @@ type GameItem = {
 };
 
 const gameList: GameItem[] = [
-    { id: 1, name: "ROV", publisher: "Garena", category: "MOBA", priceStart: 10, badge: "HOT", icon: "https://play-lh.googleusercontent.com/2RrzGOcirTAU4vPzLiZ3Us4k-E-RtPVBbWB-RkU5FAT9gVrTlUJL0nYVN6VlpSbGq_uHHaLsvwvtxm1Mjirxpg=w1024" },
-  { id: 2, name: "FF", publisher: "Garena", category: "Shooter", priceStart: 20, badge: "HOT", icon: "https://media.pocketgamer.biz/images/114095/77750/freefire_s470.jpg" },
-  { id: 3, name: "MLBB", publisher: "Moonton", category: "MOBA", priceStart: 10, badge: "HOT", icon: "https://i.pinimg.com/474x/82/55/03/8255033248d018b6c5f3d460b2deec16.jpg" },
-  { id: 4, name: "Call of Duty", publisher: "Activision", category: "Shooter", priceStart: 30, badge: "NEW", icon: "https://cdn-www.bluestacks.com/bs-images/9c392a2f1834f7f9a279c87ef7d2683a.png" },
-  { id: 5, name: "Black Clover", publisher: "Vic Game Studios", category: "RPG", priceStart: 35, icon: "https://i.wazt.net/topup/product-image/bcm.png" },
-  { id: 6, name: "Delta Force", publisher: "Tencent", category: "Shooter", priceStart: 25, icon: "https://play-lh.googleusercontent.com/utG-EAUp93da_Bp0-AeOS7M8xYWRcSYhjIcxKFxhfcSU32moPHIhL9IS-AT20gaJ8w" },
-  { id: 7, name: "Haikyu Fly", publisher: "Garena", category: "Sandbox", priceStart: 20, icon: "https://play-lh.googleusercontent.com/gkwNDUNhTjZVSsjwsc9z-nJVJvDcWX_1XYQ3ZOCIZvdVWw1Gpjw4WGBe3Zv4PZzWTwE" },
-  { id: 8, name: "Undawn", publisher: "Level Infinite", category: "RPG", priceStart: 25, icon: "https://play-lh.googleusercontent.com/ni5062FXeA6oZ_INb45nEpVEk8OClJnCjUnlYrgKQmijtIQA4OKq7J2w-uJOuu5xfg" },
-  { id: 9, name: "Valorant", publisher: "Riot Games", category: "Shooter", priceStart: 50, badge: "NEW", icon: "https://images.steamusercontent.com/ugc/1009310639741043947/C4780FD7B53B39EFE4A536842FC1281A48A1256F/?imw=512&&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=false" },
+    { id: 1, name: "ROV", publisher: "Garena", category: "MOBA", priceStart: 10, badge: "HOT", icon: "https://img2.pic.in.th/unnamed8e8278dc624c7c96.md.png" },
+  { id: 2, name: "Freefire", publisher: "Garena", category: "Shooter", priceStart: 20, badge: "HOT", icon: "https://img1.pic.in.th/images/freefire_s470.th.jpg" },
+  { id: 3, name: "MLBB", publisher: "Moonton", category: "MOBA", priceStart: 10, badge: "HOT", icon: "https://img1.pic.in.th/images/8255033248d018b6c5f3d460b2deec16.th.jpg" },
+  { id: 4, name: "Call of Duty", publisher: "Activision", category: "Shooter", priceStart: 30, badge: "NEW", icon: "https://img2.pic.in.th/9c392a2f1834f7f9a279c87ef7d2683a.md.png" },
+  { id: 5, name: "Black Clover", publisher: "Vic Game Studios", category: "RPG", priceStart: 35, icon: "https://img2.pic.in.th/bcm.md.png" },
+  { id: 6, name: "Delta Force", publisher: "Tencent", category: "Shooter", priceStart: 25, icon: "https://img1.pic.in.th/images/unnamed2.md.png" },
+  { id: 7, name: "Haikyu Fly", publisher: "Garena", category: "Sandbox", priceStart: 20, icon: "https://img2.pic.in.th/unnamed3.md.png" },
+  { id: 8, name: "Undawn", publisher: "Level Infinite", category: "RPG", priceStart: 25, icon: "https://img1.pic.in.th/images/unnamed4d8d1d1123e331597.md.png" },
+  { id: 9, name: "Valorant", publisher: "Riot Games", category: "Shooter", priceStart: 50, badge: "NEW", icon: "https://img2.pic.in.th/images.steamusercontent.md.jpg" },
 ];
 
 const allCategories = ["ทั้งหมด", "MOBA", "Shooter", "RPG", "Sandbox"] as const;
