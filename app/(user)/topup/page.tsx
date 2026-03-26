@@ -99,8 +99,7 @@ export default function TopupPage() {
 
           {/* Right: Amount + Checkout */}
           <div className="lg:col-span-2">
-            {/* Amount Selection */}
-            <div className="mb-8 rounded-2xl border border-white/15 bg-[#0a0a0a] p-6">
+            {/* <div className="mb-8 rounded-2xl border border-white/15 bg-[#0a0a0a] p-6">
               <h3 className="mb-4 text-lg font-semibold text-white">เลือกจำนวนเงิน</h3>
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
                 {topupAmounts.map((amount) => (
@@ -117,8 +116,6 @@ export default function TopupPage() {
                   </button>
                 ))}
               </div>
-
-              {/* Custom Amount */}
               <div className="mt-4 flex gap-2">
                 <input
                   type="number"
@@ -130,7 +127,7 @@ export default function TopupPage() {
                   }}
                 />
               </div>
-            </div>
+            </div> */}
 
             {/* Payment Method Details */}
             <div className={`mb-8 rounded-2xl border-2  ${currentMethod?.color} p-0.5`}>
