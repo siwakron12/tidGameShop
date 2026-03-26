@@ -9,7 +9,7 @@ const prompt = Prompt({
 });
 
 export const metadata: Metadata = {
-  title: "Go Shop - Game Top-up",
+  title: "TitgameShop - Game Top-up",
   description: "The fastest way to top-up your favorite games",
 };
 
