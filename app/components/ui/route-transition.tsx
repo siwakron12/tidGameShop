@@ -1,7 +1,8 @@
 "use client";
 
-import { AnimatePresence, motion } from "framer-motion";
+import { motion, useAnimationControls } from "framer-motion";
 import { usePathname } from "next/navigation";
+import { useEffect } from "react";
 import type { ReactNode } from "react";
 
 type RouteTransitionProps = {
@@ -10,19 +11,23 @@ type RouteTransitionProps = {
 
 export default function RouteTransition({ children }: RouteTransitionProps) {
   const pathname = usePathname();
+  const controls = useAnimationControls();
+
+  useEffect(() => {
+    controls.set({ opacity: 0.94, y: 8 });
+    controls.start({
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.2, ease: "easeOut" },
+    });
+  }, [pathname, controls]);
 
   return (
-         <AnimatePresence mode="wait">
-        <motion.div
-          key={pathname}
-          initial={{ opacity: 0, y: 15 }}
-          animate={{ opacity: 1, y: 0 }}
-          
-          transition={{ duration: 0.3 }}
-        >
-          {children}
-        </motion.div>
-      </AnimatePresence>
-
+    <motion.div
+      initial={false}
+      animate={controls}
+    >
+      {children}
+    </motion.div>
   );
 }

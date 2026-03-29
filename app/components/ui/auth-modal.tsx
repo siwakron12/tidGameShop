@@ -4,6 +4,10 @@ import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { User } from "lucide-react";
+import { toast } from "sonner";
+import { authClient } from "@/lib/auth-client";
+import AuthLoginForm from "./auth-login-form";
+import AuthRegisterForm from "./auth-register-form";
 
 type AuthModalProps = {
   isOpen: boolean;
@@ -18,18 +22,9 @@ export default function AuthModal({
   onClose,
   initialTab = "login",
 }: AuthModalProps) {
-  const [activeTab, setActiveTab] = useState<AuthTab>("login");
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    if (isOpen) {
-      setActiveTab(initialTab);
-    }
-  }, [isOpen, initialTab]);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const [activeTab, setActiveTab] = useState<AuthTab>(initialTab);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const googleCallbackUrl = "https://titgame.shop/";
 
   useEffect(() => {
     if (!isOpen) {
@@ -48,16 +43,47 @@ export default function AuthModal({
     };
   }, [isOpen, onClose]);
 
-  if (!mounted) {
+  if (typeof document === "undefined") {
     return null;
   }
+
+  const closeModal = () => {
+    if (isSubmitting) {
+      return;
+    }
+
+    onClose();
+  };
+
+  const handleGoogleSignIn = async () => {
+    if (isSubmitting) {
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const response = await authClient.signIn.social({
+        provider: "google",
+        callbackURL:`${window.location.origin}/`,
+      });
+
+      if (response?.error) {
+        toast.error("เข้าสู่ระบบด้วย Google ไม่สำเร็จ");
+      }
+    } catch {
+      toast.error("เข้าสู่ระบบด้วย Google ไม่สำเร็จ");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return createPortal(
     <AnimatePresence>
       {isOpen ? (
         <motion.div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4"
-          onClick={onClose}
+          onClick={closeModal}
           role="presentation"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -84,7 +110,8 @@ export default function AuthModal({
               </div>
               <button
                 type="button"
-                onClick={onClose}
+                onClick={closeModal}
+                disabled={isSubmitting}
                 className="rounded-md px-2 py-1 text-sm font-semibold text-white/70 transition hover:bg-white/10 hover:text-white"
               >
                 ปิด
@@ -95,7 +122,10 @@ export default function AuthModal({
               <div className="grid grid-cols-2 text-center">
                 <button
                   type="button"
-                  onClick={() => setActiveTab("login")}
+                  onClick={() => {
+                    setActiveTab("login");
+                  }}
+                  disabled={isSubmitting}
                   className={`border-b-2 px-3 cursor-pointer py-2 text-sm font-semibold transition ${
                     activeTab === "login"
                       ? "border-[#ff001f] text-white"
@@ -106,7 +136,10 @@ export default function AuthModal({
                 </button>
                 <button
                   type="button"
-                  onClick={() => setActiveTab("register")}
+                  onClick={() => {
+                    setActiveTab("register");
+                  }}
+                  disabled={isSubmitting}
                   className={`border-b-2 px-3 cursor-pointer py-2 text-sm font-semibold transition ${
                     activeTab === "register"
                       ? "border-[#ff001f] text-white"
@@ -120,64 +153,48 @@ export default function AuthModal({
 
             <AnimatePresence mode="wait" initial={false}>
               {activeTab === "login" ? (
-                <motion.form
+                <motion.div
                   key="login"
-                  className="space-y-3"
                   initial={{ x: -18, opacity: 0 }}
                   animate={{ x: 0, opacity: 1 }}
                   exit={{ x: 18, opacity: 0 }}
                   transition={{ duration: 0.18, ease: "easeOut" }}
                 >
-                  <input
-                    type="email"
-                    placeholder="อีเมล"
-                    className="h-11 w-full rounded-xl border border-white/15 bg-[#1d1d1d] px-3 text-sm text-white outline-none placeholder:text-white/45 focus:border-[#ff001f]"
+                  <AuthLoginForm
+                    onSuccess={closeModal}
+                    onBusyChange={setIsSubmitting}
                   />
-                  <input
-                    type="password"
-                    placeholder="รหัสผ่าน"
-                    className="h-11 w-full rounded-xl border border-white/15 bg-[#1d1d1d] px-3 text-sm text-white outline-none placeholder:text-white/45 focus:border-[#ff001f]"
-                  />
-                  <button
-                    type="button"
-                    className="h-11 w-full rounded-xl bg-[#ff001f] text-sm font-black tracking-wide text-white transition hover:bg-[#ff2742]"
-                  >
-                    เข้าสู่ระบบ
-                  </button>
-                </motion.form>
+                </motion.div>
               ) : (
-                <motion.form
+                <motion.div
                   key="register"
-                  className="space-y-3"
                   initial={{ x: 18, opacity: 0 }}
                   animate={{ x: 0, opacity: 1 }}
                   exit={{ x: -18, opacity: 0 }}
                   transition={{ duration: 0.18, ease: "easeOut" }}
                 >
-                  <input
-                    type="text"
-                    placeholder="ชื่อผู้ใช้"
-                    className="h-11 w-full rounded-xl border border-white/15 bg-[#1d1d1d] px-3 text-sm text-white outline-none placeholder:text-white/45 focus:border-[#ff001f]"
+                  <AuthRegisterForm
+                    onSuccess={closeModal}
+                    onBusyChange={setIsSubmitting}
                   />
-                  <input
-                    type="email"
-                    placeholder="อีเมล"
-                    className="h-11 w-full rounded-xl border border-white/15 bg-[#1d1d1d] px-3 text-sm text-white outline-none placeholder:text-white/45 focus:border-[#ff001f]"
-                  />
-                  <input
-                    type="password"
-                    placeholder="รหัสผ่าน"
-                    className="h-11 w-full rounded-xl border border-white/15 bg-[#1d1d1d] px-3 text-sm text-white outline-none placeholder:text-white/45 focus:border-[#ff001f]"
-                  />
-                  <button
-                    type="button"
-                    className="h-11 w-full rounded-xl bg-[#ff001f] text-sm font-black tracking-wide text-white transition hover:bg-[#ff2742]"
-                  >
-                    สมัครสมาชิก
-                  </button>
-                </motion.form>
+                </motion.div>
               )}
             </AnimatePresence>
+
+            <div className="my-4 flex items-center gap-2 text-xs text-white/45">
+              <span className="h-px flex-1 bg-white/10" />
+              <span>หรือ</span>
+              <span className="h-px flex-1 bg-white/10" />
+            </div>
+
+            <button
+              type="button"
+              disabled={isSubmitting}
+              onClick={handleGoogleSignIn}
+              className="h-11 w-full rounded-xl border border-white/20 bg-[#111] text-sm font-bold tracking-wide text-white transition hover:bg-[#1a1a1a] disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              เข้าสู่ระบบด้วย Google
+            </button>
           </motion.div>
         </motion.div>
       ) : null}
