@@ -24,7 +24,6 @@ export default function AuthModal({
 }: AuthModalProps) {
   const [activeTab, setActiveTab] = useState<AuthTab>(initialTab);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const googleCallbackUrl = "https://titgame.shop/";
 
   useEffect(() => {
     if (!isOpen) {
@@ -63,9 +62,14 @@ export default function AuthModal({
     setIsSubmitting(true);
 
     try {
+      const callbackURL =
+        typeof window !== "undefined"
+          ? `${window.location.origin}/`
+          : "/";
+
       const response = await authClient.signIn.social({
         provider: "google",
-        callbackURL:`https://titgame.shop/`,
+        callbackURL,
       });
 
       if (response?.error) {

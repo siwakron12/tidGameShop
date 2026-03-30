@@ -8,6 +8,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { toApiUrl } from "@/lib/api-url";
 
 type WalletApiResponse = {
   ok?: boolean;
@@ -77,12 +78,12 @@ export function WalletProvider({ children }: WalletProviderProps) {
 
     try {
       const [walletResponse, pointsResponse] = await Promise.all([
-        fetch("/api/wallet", {
+        fetch(toApiUrl("/api/wallet"), {
           method: "GET",
           credentials: "include",
           cache: "no-store",
         }),
-        fetch("/api/points", {
+        fetch(toApiUrl("/api/points"), {
           method: "GET",
           credentials: "include",
           cache: "no-store",

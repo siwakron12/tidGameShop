@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { toast } from "sonner";
+import { toApiUrl } from "@/lib/api-url";
 import { useWalletContext } from "../../components/providers/wallet-context";
 import PromptpaySlipFlow from "./promptpay-slip-flow";
 
@@ -54,7 +55,7 @@ export default function TopupPage() {
     setIsLoading(true);
 
     try {
-      const response = await fetch("/api/topups/truewallet", {
+      const response = await fetch(toApiUrl("/api/topups/truewallet"), {
         method: "POST",
         credentials: "include",
         headers: {

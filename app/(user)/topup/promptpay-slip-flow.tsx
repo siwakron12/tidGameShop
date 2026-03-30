@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import QRCode from "qrcode";
 import { toast } from "sonner";
+import { toApiUrl } from "@/lib/api-url";
 import { useWalletContext } from "../../components/providers/wallet-context";
 
 type UploadSession = {
@@ -109,7 +110,7 @@ export default function PromptpaySlipFlow() {
     setIsCreatingSession(true);
 
     try {
-      const response = await fetch("/api/topups/slip/upload-session", {
+      const response = await fetch(toApiUrl("/api/topups/slip/upload-session"), {
         method: "POST",
         credentials: "include",
       });
@@ -140,7 +141,7 @@ export default function PromptpaySlipFlow() {
   };
 
   const fetchSessionStatus = async (sessionId: string) => {
-    const response = await fetch(`/api/topups/slip/upload-session/${sessionId}`, {
+    const response = await fetch(toApiUrl(`/api/topups/slip/upload-session/${sessionId}`), {
       method: "GET",
       credentials: "include",
       cache: "no-store",
@@ -195,7 +196,7 @@ export default function PromptpaySlipFlow() {
       formData.append("file", selectedFile);
 
       const response = await fetch(
-        `/api/public/topups/slip/upload/${activeSession.token}`,
+        toApiUrl(`/api/public/topups/slip/upload/${activeSession.token}`),
         {
           method: "POST",
           body: formData,

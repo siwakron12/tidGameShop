@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { authClient } from "@/lib/auth-client";
+import { toApiUrl } from "@/lib/api-url";
 import { useWalletContext } from "../../components/providers/wallet-context";
 import GameTopupHistoryTable from "./game-topup-history-table";
 
@@ -135,11 +136,11 @@ export default function ProfilePage() {
     setTopupError(null);
 
     try {
-      const query = cursor
+      const queryPath = cursor
         ? `/api/topups?limit=20&cursor=${encodeURIComponent(cursor)}`
         : "/api/topups?limit=20";
 
-      const response = await fetch(query, {
+      const response = await fetch(toApiUrl(queryPath), {
         method: "GET",
         credentials: "include",
         cache: "no-store",
@@ -192,11 +193,11 @@ export default function ProfilePage() {
     setPointsError(null);
 
     try {
-      const query = cursor
+      const queryPath = cursor
         ? `/api/points/transactions?limit=20&cursor=${encodeURIComponent(cursor)}`
         : "/api/points/transactions?limit=20";
 
-      const response = await fetch(query, {
+      const response = await fetch(toApiUrl(queryPath), {
         method: "GET",
         credentials: "include",
         cache: "no-store",
