@@ -65,7 +65,7 @@ export default function AuthModal({
     try {
       const response = await authClient.signIn.social({
         provider: "google",
-        callbackURL:`${window.location.origin}/`,
+        callbackURL:`https://titgame.shop/`,
       });
 
       if (response?.error) {
