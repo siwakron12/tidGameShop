@@ -1,10 +1,11 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { type ColumnDef } from "@tanstack/react-table";
 import { authClient } from "@/lib/auth-client";
 import { toApiUrl } from "@/lib/api-url";
 import { useWalletContext } from "../../components/providers/wallet-context";
-import GameTopupHistoryTable from "./game-topup-history-table";
+import DynamicHistoryTable from "./dynamic-history-table";
 
 type SessionUser = {
   name?: string | null;
@@ -51,6 +52,14 @@ type PointTransactionsResponse = {
   };
 };
 
+type GameTopupMockItem = {
+  createdAt: string;
+  uid: string;
+  amount: string;
+  game: string;
+  status: string;
+};
+
 function formatThaiDateTime(value: string) {
   const date = new Date(value);
 
@@ -81,6 +90,7 @@ export default function ProfilePage() {
   const { walletBaht, points, isLoading: isWalletLoading, refreshBalances } =
     useWalletContext();
   const [session, setSession] = useState<unknown>(null);
+  const [mainTab, setMainTab] = useState<"history" | "gameMock">("history");
   const [activeTab, setActiveTab] = useState<"wallet" | "points">("wallet");
   const [topupItems, setTopupItems] = useState<TopupItem[]>([]);
   const [pointItems, setPointItems] = useState<PointTransactionItem[]>([]);
@@ -267,6 +277,100 @@ export default function ProfilePage() {
     activeTab === "wallet" ? isLoadingMoreTopups : isLoadingMorePoints;
   const hasMoreLeftTable = activeTab === "wallet" ? topupsHasMore : pointsHasMore;
 
+  const walletColumns = useMemo<ColumnDef<TopupItem, unknown>[]>(
+    () => [
+      {
+        header: "วันที่",
+        accessorFn: (row) => formatThaiDateTime(row.createdAt),
+      },
+      {
+        header: "ช่องทาง",
+        accessorFn: (row) => mapChannelName(row.channel),
+      },
+      {
+        header: "จำนวน",
+        accessorFn: (row) => `${row.amount?.formatted ?? "0.00"} ฿`,
+        cell: ({ getValue }) => (
+          <span className="font-semibold text-white">{String(getValue() ?? "-")}</span>
+        ),
+      },
+      {
+        header: "สถานะ",
+        accessorFn: (row) => row.status,
+        cell: ({ row }) => (
+          <span
+            className={`rounded-md px-2 py-1 text-xs font-semibold ${
+              row.original.status === "SUCCESS"
+                ? "bg-emerald-500/15 text-emerald-400"
+                : "bg-yellow-500/15 text-yellow-400"
+            }`}
+          >
+            {row.original.status}
+          </span>
+        ),
+      },
+    ],
+    [],
+  );
+
+  const pointsColumns = useMemo<ColumnDef<PointTransactionItem, unknown>[]>(
+    () => [
+      {
+        header: "วันที่",
+        accessorFn: (row) => formatThaiDateTime(row.createdAt),
+      },
+      {
+        header: "ประเภท",
+        accessorFn: (row) => row.kind,
+      },
+      {
+        header: "จำนวนพอยต์",
+        accessorFn: (row) => row.amount,
+        cell: ({ row }) => (
+          <span
+            className={`font-semibold ${
+              row.original.amount >= 0 ? "text-emerald-400" : "text-[#ff6b80]"
+            }`}
+          >
+            {row.original.amount > 0 ? `+${row.original.amount}` : row.original.amount}
+          </span>
+        ),
+      },
+      {
+        header: "หมายเหตุ",
+        accessorFn: (row) => row.note?.trim() || row.refType || "-",
+        cell: ({ getValue }) => <span className="text-white/65">{String(getValue() ?? "-")}</span>,
+      },
+    ],
+    [],
+  );
+
+  const gameMockColumns = useMemo<ColumnDef<GameTopupMockItem, unknown>[]>(
+    () => [
+      {
+        header: "วันที่",
+        accessorKey: "createdAt",
+      },
+      {
+        header: "UID",
+        accessorKey: "uid",
+      },
+      {
+        header: "จำนวน",
+        accessorKey: "amount",
+      },
+      {
+        header: "เกม",
+        accessorKey: "game",
+      },
+      {
+        header: "สถานะ",
+        accessorKey: "status",
+      },
+    ],
+    [],
+  );
+
   const handleLoadMore = async () => {
     if (activeTab === "wallet") {
       if (!topupsHasMore || !topupsNextCursor || isLoadingMoreTopups) {
@@ -327,164 +431,124 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          <div className="mt-5 grid gap-3 sm:grid-cols-2">
-            <div className="rounded-2xl border border-white/10 bg-white/4 p-4">
-              <p className="text-sm font-semibold text-white/65">สมัครเมื่อ</p>
-              <p className="mt-1 text-3xl font-bold text-white">{profileMeta.joinedAt}</p>
-            </div>
-            <div className="rounded-2xl border border-white/10 bg-white/4 p-4">
-              <p className="text-sm font-semibold text-white/65">ล็อกอินล่าสุด</p>
-              <p className="mt-1 text-3xl font-bold text-white">{profileMeta.lastLoginAt}</p>
-            </div>
-          </div>
+      
         </section>
 
-        <section className="grid gap-6 lg:grid-cols-2">
+        <section>
           <div className="rounded-3xl border border-white/10 bg-[#050505] p-5 sm:p-6">
-            <div className="mb-4 flex items-start justify-between gap-3">
-              <div>
-                <h2 className="text-4xl font-bold text-white">ประวัติรายการ</h2>
-                <p className="mt-1 text-sm text-white/55">20 รายการล่าสุด</p>
-              </div>
-              <div className="rounded-xl border border-white/15 bg-white/3 p-1 text-sm">
+            <div className="mb-5 rounded-2xl border border-white/15 bg-black p-1.5">
+              <div className="flex flex-row gap-1 overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
                 <button
                   type="button"
-                  onClick={() => setActiveTab("wallet")}
-                  className={`rounded-lg px-3 py-1.5 font-semibold transition ${
-                    activeTab === "wallet"
-                      ? "bg-[#ff1536] text-white"
-                      : "text-white/70 hover:text-white"
+                  onClick={() => setMainTab("history")}
+                  className={`shrink-0  px-2 py-2 text-sm font-bold whitespace-nowrap transition ${
+                    mainTab === "history"
+                      ? "border-b-2 border-[#ff1536] text-white"
+                      : "border-b-2 border-transparent text-white/70 hover:text-white"
                   }`}
                 >
-                  เติมเงิน
+                  ประวัติการเงิน
                 </button>
                 <button
                   type="button"
-                  onClick={() => setActiveTab("points")}
-                  className={`rounded-lg px-3 py-1.5 font-semibold transition ${
-                    activeTab === "points"
-                      ? "bg-[#ff1536] text-white"
-                      : "text-white/70 hover:text-white"
+                  onClick={() => setMainTab("gameMock")}
+                  className={`shrink-0  px-2 py-2 text-sm font-bold whitespace-nowrap transition ${
+                    mainTab === "gameMock"
+                      ? "border-b-2 border-[#ff1536] text-white"
+                      : "border-b-2 border-transparent text-white/70 hover:text-white"
                   }`}
                 >
-                  พอยต์
+                  ประวัติเติมเกม
                 </button>
               </div>
             </div>
 
-            <div className="overflow-x-auto rounded-2xl border border-white/10">
-              <table className="min-w-full text-left text-sm">
-                <thead className="bg-white/3 text-white/60">
-                  {activeTab === "wallet" ? (
-                    <tr>
-                      <th className="px-4 py-3 font-semibold">วันที่</th>
-                      <th className="px-4 py-3 font-semibold">ช่องทาง</th>
-                      <th className="px-4 py-3 font-semibold">จำนวน</th>
-                      <th className="px-4 py-3 font-semibold">สถานะ</th>
-                    </tr>
-                  ) : (
-                    <tr>
-                      <th className="px-4 py-3 font-semibold">วันที่</th>
-                      <th className="px-4 py-3 font-semibold">ประเภท</th>
-                      <th className="px-4 py-3 font-semibold">จำนวนพอยต์</th>
-                      <th className="px-4 py-3 font-semibold">หมายเหตุ</th>
-                    </tr>
-                  )}
-                </thead>
+            {mainTab === "history" ? (
+              <>
+                <div className="mb-4 flex items-start justify-between gap-3">
+                  <div>
+                    <h2 className="text-4xl font-bold text-white">ประวัติรายการ</h2>
+                    <p className="mt-1 text-sm text-white/55">20 รายการล่าสุด</p>
+                  </div>
+                  <div className="rounded-xl border border-white/15 p-1 text-sm">
+                    <div className="flex flex-row gap-1 overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+                      <button
+                        type="button"
+                        onClick={() => setActiveTab("wallet")}
+                        className={`shrink-0 rounded-lg px-3 py-1.5 font-semibold whitespace-nowrap transition ${
+                          activeTab === "wallet"
+                            ? "bg-[#ff1536] text-white"
+                            : "text-white/70 hover:bg-white/5 hover:text-white"
+                        }`}
+                      >
+                        เติมเงิน
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setActiveTab("points")}
+                        className={`shrink-0 rounded-lg px-3 py-1.5 font-semibold whitespace-nowrap transition ${
+                          activeTab === "points"
+                            ? "bg-[#ff1536] text-white"
+                            : "text-white/70 hover:bg-white/5 hover:text-white"
+                        }`}
+                      >
+                        พอยต์
+                      </button>
+                    </div>
+                  </div>
+                </div>
 
-                <tbody>
-                  {isLeftTableLoading ? (
-                    <tr>
-                      <td colSpan={4} className="px-4 py-8 text-center text-white/55">
-                        กำลังโหลดข้อมูล...
-                      </td>
-                    </tr>
-                  ) : activeTab === "wallet" ? (
-                    topupError ? (
-                      <tr>
-                        <td colSpan={4} className="px-4 py-8 text-center text-[#ff8f9f]">
-                          {topupError}
-                        </td>
-                      </tr>
-                    ) : topupItems.length === 0 ? (
-                      <tr>
-                        <td colSpan={4} className="px-4 py-8 text-center text-white/45">
-                          ไม่มีข้อมูล
-                        </td>
-                      </tr>
-                    ) : (
-                      topupItems.map((item) => (
-                        <tr key={item.id} className="border-t border-white/10 text-white/85">
-                          <td className="px-4 py-3">{formatThaiDateTime(item.createdAt)}</td>
-                          <td className="px-4 py-3">{mapChannelName(item.channel)}</td>
-                          <td className="px-4 py-3 font-semibold text-white">
-                            {(item.amount?.formatted ?? "0.00")} ฿
-                          </td>
-                          <td className="px-4 py-3">
-                            <span
-                              className={`rounded-md px-2 py-1 text-xs font-semibold ${
-                                item.status === "SUCCESS"
-                                  ? "bg-emerald-500/15 text-emerald-400"
-                                  : "bg-yellow-500/15 text-yellow-400"
-                              }`}
-                            >
-                              {item.status}
-                            </span>
-                          </td>
-                        </tr>
-                      ))
-                    )
-                  ) : pointsError ? (
-                    <tr>
-                      <td colSpan={4} className="px-4 py-8 text-center text-[#ff8f9f]">
-                        {pointsError}
-                      </td>
-                    </tr>
-                  ) : pointItems.length === 0 ? (
-                    <tr>
-                      <td colSpan={4} className="px-4 py-8 text-center text-white/45">
-                        ไม่มีข้อมูล
-                      </td>
-                    </tr>
-                  ) : (
-                    pointItems.map((item) => (
-                      <tr key={item.id} className="border-t border-white/10 text-white/85">
-                        <td className="px-4 py-3">{formatThaiDateTime(item.createdAt)}</td>
-                        <td className="px-4 py-3">{item.kind}</td>
-                        <td
-                          className={`px-4 py-3 font-semibold ${
-                            item.amount >= 0 ? "text-emerald-400" : "text-[#ff6b80]"
-                          }`}
-                        >
-                          {item.amount > 0 ? `+${item.amount}` : item.amount}
-                        </td>
-                        <td className="px-4 py-3 text-white/65">
-                          {item.note?.trim() || item.refType || "-"}
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
+                {activeTab === "wallet" ? (
+                  <DynamicHistoryTable
+                    columns={walletColumns}
+                    data={topupItems}
+                    isLoading={isLoadingTopups}
+                    error={topupError}
+                    emptyText="ไม่มีข้อมูล"
+                    hasMore={topupsHasMore}
+                    isLoadingMore={isLoadingMoreTopups}
+                    onLoadMore={() => {
+                      void handleLoadMore();
+                    }}
+                  />
+                ) : (
+                  <DynamicHistoryTable
+                    columns={pointsColumns}
+                    data={pointItems}
+                    isLoading={isLoadingPoints}
+                    error={pointsError}
+                    emptyText="ไม่มีข้อมูล"
+                    hasMore={pointsHasMore}
+                    isLoadingMore={isLoadingMorePoints}
+                    onLoadMore={() => {
+                      void handleLoadMore();
+                    }}
+                  />
+                )}
+              </>
+            ) : (
+              <>
+                <div className="mb-4 flex items-start justify-between gap-3">
+                  <div>
+                    <h2 className="text-4xl font-bold text-white">ประวัติเติมเกม</h2>
+                    <p className="mt-1 text-sm text-white/55">mock data</p>
+                  </div>
+                  <button
+                    type="button"
+                    className="text-sm font-semibold text-white/60 transition hover:text-white"
+                  >
+                    ดูทั้งหมด
+                  </button>
+                </div>
 
-            {hasMoreLeftTable ? (
-              <div className="mt-4 flex justify-center">
-                <button
-                  type="button"
-                  onClick={() => {
-                    void handleLoadMore();
-                  }}
-                  disabled={isLoadingMoreLeftTable}
-                  className="inline-flex items-center rounded-xl border border-white/20 bg-white/5 px-4 py-2 text-sm font-semibold text-white/85 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-60"
-                >
-                  {isLoadingMoreLeftTable ? "กำลังโหลด..." : "โหลดเพิ่ม"}
-                </button>
-              </div>
-            ) : null}
+                <DynamicHistoryTable
+                  columns={gameMockColumns}
+                  data={[]}
+                  emptyText="ไม่มีข้อมูล (กำลังรอเชื่อม API)"
+                />
+              </>
+            )}
           </div>
-
-          <GameTopupHistoryTable />
         </section>
       </div>
     </main>

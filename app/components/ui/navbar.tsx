@@ -4,7 +4,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { LogOut } from "lucide-react";
+import { Coins, LogOut, Wallet } from "lucide-react";
 import { toast } from "sonner";
 import AuthModal from "./auth-modal";
 import { authClient } from "@/lib/auth-client";
@@ -193,7 +193,7 @@ export default function Navbar() {
           <div className="relative hidden sm:block">
   
 
-            {isDesktopSearchFocused && searchSuggestions.length > 0 && (
+            {isDesktopSearchFocused  && (
               <div className="absolute left-0 right-0 z-50 mt-2 overflow-hidden rounded-xl border border-white/10 bg-black/45 shadow-lg backdrop-blur-xl">
                 {searchSuggestions.map((game) => (
                   <button
@@ -219,7 +219,7 @@ export default function Navbar() {
             <div className="flex items-center gap-2">
               <Link
                 href="/profile"
-                className="inline-flex max-w-36 items-center gap-1.5 rounded-lg border border-white/10 bg-black/45 px-2 py-1.5 sm:hidden"
+                className="user-nav-gradient inline-flex max-w-36 items-center gap-1.5 rounded-lg border px-2 py-1.5 sm:hidden"
               >
                 <span className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-white/15 text-[10px] font-bold text-white">
                   {userInitial}
@@ -228,15 +228,22 @@ export default function Navbar() {
                   <span className="block truncate text-xs font-semibold text-white/90">
                     {userDisplayName}
                   </span>
-                  <span className="block truncate text-[10px] text-white/60">
-                    {isLoading ? "..." : `${walletBaht} ฿ • ${points} P`}
+                  <span className="flex items-center gap-2 text-[7px] lg:text-[10px] text-white/90">
+                    <span className="inline-flex items-center gap-1">
+                   
+                      <span>{isLoading ? "..." : `฿ ${walletBaht} `}</span>
+                    </span>
+                    <span className="inline-flex items-center gap-1">
+                      <Coins size={10} />
+                      <span>{points}</span>
+                    </span>
                   </span>
                 </span>
               </Link>
 
               <Link
                 href="/profile"
-                className="hidden items-center gap-2 rounded-xl border border-white/10 bg-black/45 px-2 py-1.5 transition hover:border-white/20 hover:bg-black/55 sm:flex"
+                className="user-nav-gradient hidden items-center gap-2 rounded-xl border px-2 py-1.5 transition hover:brightness-110 sm:flex"
               >
                 {user?.image ? (
                   <img
@@ -253,10 +260,15 @@ export default function Navbar() {
                   <p className="max-w-32 truncate text-sm font-semibold text-white">
                     {userDisplayName}
                   </p>
-                  <p className="text-xs text-white/55">
-                    {isLoading ? "กำลังโหลด..." : `ยอดคงเหลือ ${walletBaht} ฿`}
-                  </p>
-                  <p className="text-xs text-white/45">แต้ม {points}</p>
+                  <div className="flex items-center gap-2 text-xs text-white/90">
+                    <span className="inline-flex items-center gap-1">
+                      <span>{isLoading ? "..." : `฿ ${walletBaht} `}</span>
+                    </span>
+                    <span className="inline-flex items-center gap-1">
+                      <Coins size={12} />
+                      <span>{points}</span>
+                    </span>
+                  </div>
                 </div>
               </Link>
 
@@ -264,7 +276,7 @@ export default function Navbar() {
                 type="button"
                 onClick={handleLogout}
                 disabled={isSigningOut}
-                className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-[#ff4d5f]/40 bg-[#1b1113] text-[#ff4d5f] transition hover:bg-[#281318] disabled:cursor-not-allowed disabled:opacity-60"
+                className="inline-flex size-10 items-center justify-center rounded-xl border border-[#ff4d5f]/40 bg-[#1b1113] text-[#ff4d5f] transition hover:bg-[#281318] disabled:cursor-not-allowed disabled:opacity-60"
                 aria-label="ออกจากระบบ"
               >
                 <LogOut size={16} />

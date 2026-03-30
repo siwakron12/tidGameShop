@@ -1,3 +1,17 @@
+"use client";
+
+import { useMemo } from "react";
+import { type ColumnDef } from "@tanstack/react-table";
+import DynamicHistoryTable from "./dynamic-history-table";
+
+type GameTopupHistoryItem = {
+  createdAt: string;
+  uid: string;
+  amount: string;
+  game: string;
+  status: string;
+};
+
 type GameTopupHistoryTableProps = {
   title?: string;
   subtitle?: string;
@@ -7,6 +21,32 @@ export default function GameTopupHistoryTable({
   title = "ประวัติเติมเกม",
   subtitle = "mock data",
 }: GameTopupHistoryTableProps) {
+  const columns = useMemo<ColumnDef<GameTopupHistoryItem, unknown>[]>(
+    () => [
+      {
+        header: "วันที่",
+        accessorKey: "createdAt",
+      },
+      {
+        header: "UID",
+        accessorKey: "uid",
+      },
+      {
+        header: "จำนวน",
+        accessorKey: "amount",
+      },
+      {
+        header: "เกม",
+        accessorKey: "game",
+      },
+      {
+        header: "สถานะ",
+        accessorKey: "status",
+      },
+    ],
+    [],
+  );
+
   return (
     <div className="rounded-3xl border border-white/10 bg-[#050505] p-5 sm:p-6">
       <div className="mb-4 flex items-start justify-between gap-3">
@@ -22,26 +62,11 @@ export default function GameTopupHistoryTable({
         </button>
       </div>
 
-      <div className="overflow-x-auto rounded-2xl border border-white/10">
-        <table className="min-w-full text-left text-sm">
-          <thead className="bg-white/3 text-white/60">
-            <tr>
-              <th className="px-4 py-3 font-semibold">วันที่</th>
-              <th className="px-4 py-3 font-semibold">UID</th>
-              <th className="px-4 py-3 font-semibold">จำนวน</th>
-              <th className="px-4 py-3 font-semibold">เกม</th>
-              <th className="px-4 py-3 font-semibold">สถานะ</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr className="border-t border-white/10 text-white/45">
-              <td className="px-4 py-8 text-center" colSpan={5}>
-                ไม่มีข้อมูล (กำลังรอเชื่อม API)
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+      <DynamicHistoryTable
+        columns={columns}
+        data={[]}
+        emptyText="ไม่มีข้อมูล (กำลังรอเชื่อม API)"
+      />
     </div>
   );
 }
