@@ -15,6 +15,18 @@ const nextConfig: NextConfig = {
         source: "/api/auth/:path*",
         destination: `${apiBaseUrl}/api/auth/:path*`,
       },
+      {
+        source: "/api/wallet",
+        destination: `${apiBaseUrl}/api/wallet`,
+      },
+      {
+        source: "/api/points",
+        destination: `${apiBaseUrl}/api/points`,
+      },
+      {
+        source: "/api/:path*",
+        destination: `${apiBaseUrl}/api/:path*`,
+      },
     ];
   },
 };

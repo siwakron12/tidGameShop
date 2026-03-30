@@ -8,6 +8,7 @@ import { LogOut } from "lucide-react";
 import { toast } from "sonner";
 import AuthModal from "./auth-modal";
 import { authClient } from "@/lib/auth-client";
+import { useWalletContext } from "../providers/wallet-context";
 
 const navItems = [
   { label: "หน้าแรก", href: "/", match: ["/"] },
@@ -37,6 +38,8 @@ type SessionUser = {
 };
 
 export default function Navbar() {
+  const { walletBaht, points, isLoading, refreshBalances, clearBalances } =
+    useWalletContext();
   const pathname = usePathname();
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authModalTab, setAuthModalTab] = useState<"login" | "register">(
@@ -108,6 +111,14 @@ export default function Navbar() {
   const userDisplayName = user?.name?.trim() || user?.email?.trim() || "ผู้ใช้งาน";
   const userInitial = userDisplayName.slice(0, 1).toUpperCase();
 
+  useEffect(() => {
+    if (!isLoggedIn) {
+      return;
+    }
+
+    void refreshBalances();
+  }, [isLoggedIn, pathname, refreshBalances]);
+
   const handleLogout = async () => {
     if (isSigningOut) {
       return;
@@ -125,6 +136,7 @@ export default function Navbar() {
       }
 
       setSession(null);
+      clearBalances();
       toast.success("ออกจากระบบสำเร็จ");
     } catch {
       toast.error("ออกจากระบบไม่สำเร็จ");
@@ -205,7 +217,27 @@ export default function Navbar() {
 
           {isLoggedIn ? (
             <div className="flex items-center gap-2">
-              <div className="hidden items-center gap-2 rounded-xl border border-white/10 bg-black/45 px-2 py-1.5 sm:flex">
+              <Link
+                href="/profile"
+                className="inline-flex max-w-36 items-center gap-1.5 rounded-lg border border-white/10 bg-black/45 px-2 py-1.5 sm:hidden"
+              >
+                <span className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-white/15 text-[10px] font-bold text-white">
+                  {userInitial}
+                </span>
+                <span className="min-w-0 leading-tight">
+                  <span className="block truncate text-xs font-semibold text-white/90">
+                    {userDisplayName}
+                  </span>
+                  <span className="block truncate text-[10px] text-white/60">
+                    {isLoading ? "..." : `${walletBaht} ฿ • ${points} P`}
+                  </span>
+                </span>
+              </Link>
+
+              <Link
+                href="/profile"
+                className="hidden items-center gap-2 rounded-xl border border-white/10 bg-black/45 px-2 py-1.5 transition hover:border-white/20 hover:bg-black/55 sm:flex"
+              >
                 {user?.image ? (
                   <img
                     src={user.image}
@@ -221,9 +253,12 @@ export default function Navbar() {
                   <p className="max-w-32 truncate text-sm font-semibold text-white">
                     {userDisplayName}
                   </p>
-                  <p className="text-xs text-white/55">ยอดคงเหลือ 0.00 ฿</p>
+                  <p className="text-xs text-white/55">
+                    {isLoading ? "กำลังโหลด..." : `ยอดคงเหลือ ${walletBaht} ฿`}
+                  </p>
+                  <p className="text-xs text-white/45">แต้ม {points}</p>
                 </div>
-              </div>
+              </Link>
 
               <button
                 type="button"
@@ -318,6 +353,15 @@ export default function Navbar() {
               {item.label}
             </Link>
           ))}
+
+          {isLoggedIn ? (
+            <Link
+              href="/profile"
+              className="rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm font-semibold text-white/85 transition hover:bg-white/10"
+            >
+              ประวัติของฉัน
+            </Link>
+          ) : null}
 
           {isLoggedIn ? (
             <button
