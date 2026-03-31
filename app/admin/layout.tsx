@@ -85,11 +85,11 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   }
 
   return (
-    <div className="flex min-h-screen bg-[#000000] text-white">
-      <AdminSidebar />
-      <div className="flex flex-1 flex-col">
-        <div className="flex-1 overflow-auto">
-          {children}
+    <div className="min-h-screen overflow-x-auto bg-[#000000] text-white">
+      <div className="flex min-h-screen min-w-275">
+        <AdminSidebar />
+        <div className="flex min-w-0 flex-1 flex-col">
+          <div className="flex-1 overflow-auto">{children}</div>
         </div>
       </div>
     </div>

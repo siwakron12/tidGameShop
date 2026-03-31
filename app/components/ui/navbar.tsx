@@ -111,13 +111,7 @@ export default function Navbar() {
   const userDisplayName = user?.name?.trim() || user?.email?.trim() || "ผู้ใช้งาน";
   const userInitial = userDisplayName.slice(0, 1).toUpperCase();
 
-  useEffect(() => {
-    if (!isLoggedIn) {
-      return;
-    }
-
-    void refreshBalances();
-  }, [isLoggedIn, pathname, refreshBalances]);
+  
 
   const handleLogout = async () => {
     if (isSigningOut) {
