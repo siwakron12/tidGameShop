@@ -1,26 +1,5 @@
 import { createAuthClient } from "better-auth/react";
 
-function stripTrailingSlash(value: string) {
-  return value.replace(/\/$/, "");
-}
-
-function resolveAuthBaseUrl() {
-  if (typeof window !== "undefined") {
-    return `${window.location.origin}/api/auth`;
-  }
-
-  const appBaseUrl =
-    process.env.NEXT_PUBLIC_APP_URL?.trim() ??
-    process.env.NEXT_PUBLIC_SITE_URL?.trim() ??
-    "http://localhost:3000";
-
-  return `${stripTrailingSlash(appBaseUrl)}/api/auth`;
-}
-
 export const authClient = createAuthClient({
-
-  baseURL: resolveAuthBaseUrl(),
-  fetchOptions: {
-    credentials: "include",
-  },
+  baseURL: process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001/",
 });
