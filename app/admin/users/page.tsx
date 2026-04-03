@@ -7,6 +7,7 @@ import { toApiUrl } from "@/lib/api-url";
 import TableAdmin from "../(uiAdmin)/TableAdmin";
 import RoleChangeModal from "./role-change-modal";
 import AdjustBalanceModal from "./adjust-balance-modal";
+import UserTransactionsModal from "./transactions";
 
 type UserRole = "admin" | "user";
 type SearchField = "email" | "name" | "role";
@@ -52,6 +53,8 @@ export default function AdminUsersPage() {
   const [adjustAmount, setAdjustAmount] = useState("");
   const [adjustNote, setAdjustNote] = useState("");
   const [adjustingId, setAdjustingId] = useState<string | null>(null);
+  const [isTransactionsModalOpen, setIsTransactionsModalOpen] = useState(false);
+  const [transactionUser, setTransactionUser] = useState<AdminUser | null>(null);
 
   const [total, setTotal] = useState(0);
 
@@ -185,6 +188,16 @@ export default function AdminUsersPage() {
     setAdjustAmount("");
     setAdjustNote("");
   }, [adjustingId]);
+
+  const onOpenTransactionsModal = useCallback((user: AdminUser) => {
+    setTransactionUser(user);
+    setIsTransactionsModalOpen(true);
+  }, []);
+
+  const onCloseTransactionsModal = useCallback(() => {
+    setIsTransactionsModalOpen(false);
+    setTransactionUser(null);
+  }, []);
 
   const buildIdempotencyKey = useCallback((target: AdjustTarget, userId: string) => {
     const suffix = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
@@ -349,6 +362,14 @@ export default function AdminUsersPage() {
 
               <button
                 type="button"
+                onClick={() => onOpenTransactionsModal(user)}
+                className="rounded-lg border bg-orange-600 border-white/20  px-2.5 py-1.5 text-xs font-semibold text-white/80 hover:bg-orange-700" 
+              >
+                ดูธุรกรรม
+              </button>
+
+              <button
+                type="button"
                 onClick={() => onClickPromote(user)}
                 disabled={updatingRoleId === user.id}
                 className="rounded-lg border border-[#35552a] bg-[#1f2b18] px-2.5 py-1.5 text-xs font-semibold text-[#9ee37d] hover:bg-[#2a3a23] disabled:cursor-not-allowed disabled:opacity-60"
@@ -361,7 +382,7 @@ export default function AdminUsersPage() {
         },
       },
     ],
-    [adjustingId, onClickPromote, onOpenAdjustModal, updatingRoleId],
+    [adjustingId, onClickPromote, onOpenAdjustModal, onOpenTransactionsModal, updatingRoleId],
   );
 
   const from = users.length === 0 ? 0 : offset + 1;
@@ -491,6 +512,12 @@ export default function AdminUsersPage() {
         onNoteChange={setAdjustNote}
         onClose={onCloseAdjustModal}
         onConfirm={() => void onConfirmAdjust()}
+      />
+
+      <UserTransactionsModal
+        isOpen={isTransactionsModalOpen}
+        user={transactionUser}
+        onClose={onCloseTransactionsModal}
       />
     </div>
   );
