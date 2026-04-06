@@ -16,11 +16,14 @@ function resolveAuthBaseUrl() {
 
   return `${stripTrailingSlash(appBaseUrl)}/api/auth`;
 }
+console.log("Auth base URL:", resolveAuthBaseUrl());
 
 export const authClient = createAuthClient({
-
+  
   baseURL: resolveAuthBaseUrl(),
   fetchOptions: {
     credentials: "include",
   },
 });
+
+// NEXT_PUBLIC_API_BASE_URL= https://api.titgame.shop

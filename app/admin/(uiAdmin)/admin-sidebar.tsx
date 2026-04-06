@@ -3,16 +3,54 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
-import { Menu, X, LogOut, BarChart3, Users, Settings, Wallet } from "lucide-react";
+import {
+  Menu,
+  X,
+  ChevronDown,
+  LogOut,
+  BarChart3,
+  Users,
+  Settings,
+  Wallet,
+  Gamepad2,
+  Building2,
+} from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { authClient } from "@/lib/auth-client";
 
-const adminNavItems = [
-  { label: "แดชบอร์ด", href: "/admin", icon: BarChart3, match: ["/admin"] },
-  { label: "ผู้ใช้", href: "/admin/users", icon: Users, match: ["/admin/users"] },
-  { label: "การเงิน", href: "/admin/transactions", icon: Wallet, match: ["/admin/transactions"] },
-  { label: "ตั้งค่า", href: "/admin/settings", icon: Settings, match: ["/admin/settings"] },
+type NavItem = {
+  label: string;
+  href: string;
+  icon: LucideIcon;
+};
+
+type NavGroup = {
+  key: string;
+  title: string;
+  items: NavItem[];
+};
+
+const adminNavGroups: NavGroup[] = [
+  {
+    key: "system-overview",
+    title: "ภาพรวมระบบ",
+    items: [
+      { label: "แดชบอร์ด", href: "/admin", icon: BarChart3 },
+      { label: "ผู้ใช้", href: "/admin/users", icon: Users },
+      { label: "การเงิน", href: "/admin/transactions", icon: Wallet },
+      { label: "ตั้งค่า", href: "/admin/settings", icon: Settings },
+    ],
+  },
+  {
+    key: "game-topup",
+    title: "Game Topup",
+    items: [
+      { label: "gameManange", href: "/admin/gameManange", icon: Gamepad2 },
+      { label: "providers", href: "/admin/providers", icon: Building2 },
+    ],
+  },
 ];
 
 type SessionUser = {
@@ -27,6 +65,12 @@ export default function AdminSidebar() {
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [session, setSession] = useState<unknown>(null);
   const [isSigningOut, setIsSigningOut] = useState(false);
+  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>(() =>
+    adminNavGroups.reduce<Record<string, boolean>>((acc, group) => {
+      acc[group.key] = true;
+      return acc;
+    }, {}),
+  );
 
   useEffect(() => {
     let cancelled = false;
@@ -69,6 +113,42 @@ export default function AdminSidebar() {
     ? (session.user as SessionUser) 
     : null;
 
+  const isItemActive = (href: string) => {
+    if (href === "/admin") {
+      return pathname === "/admin";
+    }
+
+    return pathname === href || pathname.startsWith(`${href}/`);
+  };
+
+  const isGroupActive = (group: NavGroup) =>
+    group.items.some((item) => isItemActive(item.href));
+
+  const toggleGroup = (groupKey: string) => {
+    setOpenGroups((prev) => ({
+      ...prev,
+      [groupKey]: !prev[groupKey],
+    }));
+  };
+
+  useEffect(() => {
+    const activeGroup = adminNavGroups.find((group) => isGroupActive(group));
+    if (!activeGroup) {
+      return;
+    }
+
+    setOpenGroups((prev) => {
+      if (prev[activeGroup.key]) {
+        return prev;
+      }
+
+      return {
+        ...prev,
+        [activeGroup.key]: true,
+      };
+    });
+  }, [pathname]);
+
   return (
     <>
       {/* Mobile Menu Button */}
@@ -107,41 +187,58 @@ export default function AdminSidebar() {
 
         {/* Navigation */}
         <nav className="flex-1 overflow-y-auto px-4 py-6">
-          <div className="space-y-2">
-            {adminNavItems.map((item) => {
-              const isActive = item.match.includes(pathname);
-              const Icon = item.icon;
-
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  onClick={() => setIsMobileSidebarOpen(false)}
-                  className="group relative flex items-center gap-3 rounded-lg px-4 py-3 transition-all"
+          <div className="space-y-6">
+            {adminNavGroups.map((group) => (
+              <div key={group.key}>
+                <button
+                  type="button"
+                  onClick={() => toggleGroup(group.key)}
+                  className="flex w-full items-center justify-between rounded-md px-4 pb-2 text-left text-xs font-semibold uppercase tracking-wide text-gray-500 transition-colors hover:text-gray-300"
                 >
-                  {isActive && (
-                    <motion.div
-                      layoutId="activeNav"
-                      className="absolute inset-0 rounded-lg bg-[#222222]"
-                      transition={{ type: "spring", stiffness: 380, damping: 40 }}
-                    />
-                  )}
-                  <Icon
-                    size={20}
-                    className={`relative z-10 transition-colors ${
-                      isActive ? "text-white" : "text-gray-400 group-hover:text-white"
-                    }`}
+                  <span>{group.title}</span>
+                  <ChevronDown
+                    size={14}
+                    className={`transition-transform ${openGroups[group.key] ? "rotate-180" : "rotate-0"}`}
                   />
-                  <span
-                    className={`relative z-10 font-medium transition-colors ${
-                      isActive ? "text-white" : "text-gray-400 group-hover:text-white"
-                    }`}
-                  >
-                    {item.label}
-                  </span>
-                </Link>
-              );
-            })}
+                </button>
+                {openGroups[group.key] && <div className="space-y-2">
+                  {group.items.map((item) => {
+                    const isActive = isItemActive(item.href);
+                    const Icon = item.icon;
+
+                    return (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        onClick={() => setIsMobileSidebarOpen(false)}
+                        className="group relative flex items-center gap-3 rounded-lg px-4 py-3 transition-all"
+                      >
+                        {isActive && (
+                          <motion.div
+                            layoutId="activeNav"
+                            className="absolute inset-0 rounded-lg bg-[#222222]"
+                            transition={{ type: "spring", stiffness: 380, damping: 40 }}
+                          />
+                        )}
+                        <Icon
+                          size={20}
+                          className={`relative z-10 transition-colors ${
+                            isActive ? "text-white" : "text-gray-400 group-hover:text-white"
+                          }`}
+                        />
+                        <span
+                          className={`relative z-10 font-medium transition-colors ${
+                            isActive ? "text-white" : "text-gray-400 group-hover:text-white"
+                          }`}
+                        >
+                          {item.label}
+                        </span>
+                      </Link>
+                    );
+                  })}
+                </div>}
+              </div>
+            ))}
           </div>
         </nav>
 
@@ -176,35 +273,52 @@ export default function AdminSidebar() {
 
         {/* Navigation */}
         <nav className="flex-1 overflow-y-auto px-4 py-6">
-          <div className="space-y-2">
-            {adminNavItems.map((item) => {
-              const isActive = item.match.includes(pathname);
-              const Icon = item.icon;
-
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={`group relative flex items-center gap-3 rounded-lg px-4 py-3 transition-all ${
-                    isActive ? "bg-[#222222]" : "hover:bg-[#111111]"
-                  }`}
+          <div className="space-y-6">
+            {adminNavGroups.map((group) => (
+              <div key={group.key}>
+                <button
+                  type="button"
+                  onClick={() => toggleGroup(group.key)}
+                  className="flex w-full items-center justify-between rounded-md px-4 pb-2 text-left text-xs font-semibold uppercase tracking-wide text-gray-500 transition-colors hover:text-gray-300"
                 >
-                  <Icon
-                    size={20}
-                    className={`transition-colors ${
-                      isActive ? "text-white" : "text-gray-400 group-hover:text-white"
-                    }`}
+                  <span>{group.title}</span>
+                  <ChevronDown
+                    size={14}
+                    className={`transition-transform ${openGroups[group.key] ? "rotate-180" : "rotate-0"}`}
                   />
-                  <span
-                    className={`font-medium transition-colors ${
-                      isActive ? "text-white" : "text-gray-400 group-hover:text-white"
-                    }`}
-                  >
-                    {item.label}
-                  </span>
-                </Link>
-              );
-            })}
+                </button>
+                {openGroups[group.key] && <div className="space-y-2">
+                  {group.items.map((item) => {
+                    const isActive = isItemActive(item.href);
+                    const Icon = item.icon;
+
+                    return (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        className={`group relative flex items-center gap-3 rounded-lg px-4 py-3 transition-all ${
+                          isActive ? "bg-[#222222]" : "hover:bg-[#111111]"
+                        }`}
+                      >
+                        <Icon
+                          size={20}
+                          className={`transition-colors ${
+                            isActive ? "text-white" : "text-gray-400 group-hover:text-white"
+                          }`}
+                        />
+                        <span
+                          className={`font-medium transition-colors ${
+                            isActive ? "text-white" : "text-gray-400 group-hover:text-white"
+                          }`}
+                        >
+                          {item.label}
+                        </span>
+                      </Link>
+                    );
+                  })}
+                </div>}
+              </div>
+            ))}
           </div>
         </nav>
 
