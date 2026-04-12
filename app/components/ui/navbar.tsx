@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Coins, LogOut, Wallet } from "lucide-react";
 import { toast } from "sonner";
 import AuthModal from "./auth-modal";
@@ -80,30 +80,32 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  useEffect(() => {
-    let cancelled = false;
+  const loadSession = useCallback(async () => {
+    try {
+      const result = await authClient.getSession();
+      const record = result as Record<string, unknown> | null;
+      const nextSession = (record?.data as unknown) ?? result ?? null;
+      setSession(nextSession);
 
-    const loadSession = async () => {
-      try {
-        const result = await authClient.getSession();
-
-        if (!cancelled) {
-          const record = result as Record<string, unknown> | null;
-          setSession((record?.data as unknown) ?? result ?? null);
-        }
-      } catch {
-        if (!cancelled) {
-          setSession(null);
-        }
+      const nextRecord = nextSession as Record<string, unknown> | null;
+      const hasUser = Boolean(nextRecord && "user" in nextRecord && nextRecord.user);
+      if (hasUser) {
+        refreshBalances();
       }
-    };
+    } catch {
+      setSession(null);
+    }
+  }, [refreshBalances]);
 
-    loadSession();
+  useEffect(() => {
+    void loadSession();
+  }, [loadSession]);
 
-    return () => {
-      cancelled = true;
-    };
-  }, [pathname, isAuthModalOpen]);
+  useEffect(() => {
+    if (!isAuthModalOpen) {
+      void loadSession();
+    }
+  }, [isAuthModalOpen, loadSession]);
 
   const sessionRecord = session as Record<string, unknown> | null;
   const user = (sessionRecord?.user as SessionUser | undefined) ?? null;

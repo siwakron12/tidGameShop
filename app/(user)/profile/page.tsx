@@ -6,6 +6,7 @@ import { authClient } from "@/lib/auth-client";
 import { toApiUrl } from "@/lib/api-url";
 import { useWalletContext } from "../../components/providers/wallet-context";
 import DynamicHistoryTable from "./dynamic-history-table";
+import GameTopupHistoryTable from "./game-topup-history-table";
 
 type SessionUser = {
   name?: string | null;
@@ -50,14 +51,6 @@ type PointTransactionsResponse = {
     hasMore?: boolean;
     nextCursor?: string | null;
   };
-};
-
-type GameTopupMockItem = {
-  createdAt: string;
-  uid: string;
-  amount: string;
-  game: string;
-  status: string;
 };
 
 function formatThaiDateTime(value: string) {
@@ -345,32 +338,6 @@ export default function ProfilePage() {
     [],
   );
 
-  const gameMockColumns = useMemo<ColumnDef<GameTopupMockItem, unknown>[]>(
-    () => [
-      {
-        header: "วันที่",
-        accessorKey: "createdAt",
-      },
-      {
-        header: "UID",
-        accessorKey: "uid",
-      },
-      {
-        header: "จำนวน",
-        accessorKey: "amount",
-      },
-      {
-        header: "เกม",
-        accessorKey: "game",
-      },
-      {
-        header: "สถานะ",
-        accessorKey: "status",
-      },
-    ],
-    [],
-  );
-
   const handleLoadMore = async () => {
     if (activeTab === "wallet") {
       if (!topupsHasMore || !topupsNextCursor || isLoadingMoreTopups) {
@@ -527,26 +494,7 @@ export default function ProfilePage() {
                 )}
               </>
             ) : (
-              <>
-                <div className="mb-4 flex items-start justify-between gap-3">
-                  <div>
-                    <h2 className="text-4xl font-bold text-white">ประวัติเติมเกม</h2>
-                    <p className="mt-1 text-sm text-white/55">mock data</p>
-                  </div>
-                  <button
-                    type="button"
-                    className="text-sm font-semibold text-white/60 transition hover:text-white"
-                  >
-                    ดูทั้งหมด
-                  </button>
-                </div>
-
-                <DynamicHistoryTable
-                  columns={gameMockColumns}
-                  data={[]}
-                  emptyText="ไม่มีข้อมูล (กำลังรอเชื่อม API)"
-                />
-              </>
+              <GameTopupHistoryTable />
             )}
           </div>
         </section>

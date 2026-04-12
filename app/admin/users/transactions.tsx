@@ -36,8 +36,14 @@ export default function UserTransactionsModal({
 	}
 
 	return (
-		<div className="fixed inset-0 z-80 flex items-center justify-center bg-black/60 p-4">
-			<div className="w-full max-w-6xl rounded-2xl border border-white/15 bg-[#0b0b0b] p-5 shadow-2xl">
+		<div
+			className="fixed inset-0 z-80 flex items-center justify-center bg-black/60 p-4"
+			onClick={onClose}
+		>
+			<div
+				className="w-full max-w-6xl max-h-[90vh] overflow-y-auto rounded-2xl border border-white/15 bg-[#0b0b0b] p-5 shadow-2xl"
+				onClick={(event) => event.stopPropagation()}
+			>
 				<div className="flex flex-wrap items-start justify-between gap-3">
 					<div>
 						<h2 className="text-lg font-semibold text-white">ธุรกรรมผู้ใช้</h2>

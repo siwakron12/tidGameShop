@@ -14,6 +14,8 @@ import {
   Wallet,
   Gamepad2,
   Building2,
+  Package,
+  ShoppingCart,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { useState, useEffect } from "react";
@@ -40,6 +42,7 @@ const adminNavGroups: NavGroup[] = [
       { label: "แดชบอร์ด", href: "/admin", icon: BarChart3 },
       { label: "ผู้ใช้", href: "/admin/users", icon: Users },
       { label: "การเงิน", href: "/admin/transactions", icon: Wallet },
+      { label: "orders", href: "/admin/orders", icon: ShoppingCart },
       { label: "ตั้งค่า", href: "/admin/settings", icon: Settings },
     ],
   },
@@ -47,8 +50,10 @@ const adminNavGroups: NavGroup[] = [
     key: "game-topup",
     title: "Game Topup",
     items: [
-      { label: "gameManange", href: "/admin/gameManange", icon: Gamepad2 },
       { label: "providers", href: "/admin/providers", icon: Building2 },
+
+      { label: "gameManange", href: "/admin/gameManange", icon: Gamepad2 },
+      { label: "packs", href: "/admin/packs", icon: Package },
     ],
   },
 ];
