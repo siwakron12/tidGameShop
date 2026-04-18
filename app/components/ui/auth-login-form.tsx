@@ -98,9 +98,28 @@ export default function AuthLoginForm({
     onBusyChange(true);
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 700));
-      toast.success(`Mock สำเร็จ: ส่งลิงก์รีเซ็ตไปที่ ${resetEmail.trim()}`);
+      const response = await fetch("/api/auth/request-password-reset", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: resetEmail.trim(),
+          redirectTo: "http://localhost:3000/resetPassword",
+        }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}));
+        const errorMsg = data?.message || "ส่งลิงก์รีเซ็ตรหัสผ่านไม่สำเร็จ";
+        toast.error(errorMsg);
+        return;
+      }
+
+      toast.success(`ส่งลิงก์รีเซ็ตไปที่ ${resetEmail.trim()} สำเร็จ`);
       setIsForgotModalOpen(false);
+    } catch (error) {
+      toast.error("เกิดข้อผิดพลาดในการส่งลิงก์รีเซ็ตรหัสผ่าน");
     } finally {
       setIsResetSubmitting(false);
       onBusyChange(false);

@@ -32,10 +32,14 @@ type GameTopupHistoryItem = {
 type GameOrdersResponse = {
   ok: boolean;
   items: GameTopupHistoryItem[];
+  pageInfo?: {
+    hasMore?: boolean;
+    nextCursor?: string;
+  };
 };
 
 const statusMeta: Record<OrderStatus, { label: string; className: string }> = {
-  PENDING: {
+ PENDING: {
     label: "รอดำเนินการ",
     className: "border-[#7a6430] bg-[#2f2712] text-[#ffd67c]",
   },
@@ -47,7 +51,7 @@ const statusMeta: Record<OrderStatus, { label: string; className: string }> = {
     label: "สำเร็จ",
     className: "border-[#2d6a40] bg-[#14281a] text-[#8ce7ad]",
   },
-  FAILED: {
+  FAILED: { 
     label: "ล้มเหลว",
     className: "border-[#7a2a34] bg-[#2b1418] text-[#ff9ca8]",
   },
@@ -80,13 +84,18 @@ export default function GameTopupHistoryTable({
   const [items, setItems] = useState<GameTopupHistoryItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [nextCursor, setNextCursor] = useState<string | null>(null);
+  const [hasMore, setHasMore] = useState(false);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
 
-  const fetchGameOrders = useCallback(async () => {
-    setIsLoading(true);
-    setError(null);
+  const fetchGameOrders = useCallback(async (cursor?: string) => {
+    if (cursor) setIsLoadingMore(true);
+    else setIsLoading(true);
+    if (!cursor) setError(null);
 
     try {
-      const response = await fetch(toApiUrl("/api/game-orders"), {
+      const url = cursor ? toApiUrl(`/api/game-orders?cursor=${cursor}`) : toApiUrl("/api/game-orders");
+      const response = await fetch(url, {
         method: "GET",
         credentials: "include",
         cache: "no-store",
@@ -105,18 +114,31 @@ export default function GameTopupHistoryTable({
       if (!json.ok) {
         throw new Error("เซิร์ฟเวอร์ตอบกลับไม่ถูกต้อง");
       }
-      setItems(Array.isArray(json.items) ? json.items : []);
+      if (cursor) {
+        setItems((prev) => [...prev, ...(Array.isArray(json.items) ? json.items : [])]);
+      } else {
+        setItems(Array.isArray(json.items) ? json.items : []);
+      }
+      setNextCursor(json.pageInfo?.nextCursor || null);
+      setHasMore(!!json.pageInfo?.hasMore);
     } catch (fetchError) {
-      setItems([]);
+      if (!cursor) setItems([]);
       setError(fetchError instanceof Error ? fetchError.message : "เกิดข้อผิดพลาดขณะโหลดประวัติรายการ");
     } finally {
-      setIsLoading(false);
+      if (cursor) setIsLoadingMore(false);
+      else setIsLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    void fetchGameOrders();
+    fetchGameOrders();
   }, [fetchGameOrders]);
+
+  const handleLoadMore = () => {
+    if (hasMore && nextCursor && !isLoadingMore) {
+      fetchGameOrders(nextCursor);
+    }
+  };
 
   const columns = useMemo<ColumnDef<GameTopupHistoryItem, unknown>[]>(
     () => [
@@ -172,12 +194,7 @@ export default function GameTopupHistoryTable({
           <h2 className="text-4xl font-bold text-white">{title}</h2>
           <p className="mt-1 text-sm text-white/55">{subtitle}</p>
         </div>
-        <button
-          type="button"
-          className="text-sm font-semibold text-white/60 transition hover:text-white"
-        >
-          ดูทั้งหมด
-        </button>
+     
       </div>
 
       <DynamicHistoryTable
@@ -188,6 +205,18 @@ export default function GameTopupHistoryTable({
         emptyText="ไม่มีประวัติเติมเกม"
         loadingText="กำลังโหลดประวัติเติมเกม..."
       />
+      {hasMore && (
+        <div className="mt-4 flex justify-center">
+          <button
+            type="button"
+            onClick={handleLoadMore}
+            disabled={isLoadingMore}
+            className="inline-flex items-center rounded-xl border border-white/20 bg-white/5 px-4 py-2 text-sm font-semibold text-white/85 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {isLoadingMore ? "กำลังโหลด..." : "โหลดเพิ่ม"}
+          </button>
+        </div>
+      )}
     </div>
   );
 }

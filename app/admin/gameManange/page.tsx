@@ -44,6 +44,7 @@ type AdminGamesResponse = {
 
 export default function AdminGameManagePage() {
     const [games, setGames] = useState<GameItem[]>([]);
+    const [gameNameFilter, setGameNameFilter] = useState("");
     const [isLoading, setIsLoading] = useState(true);
     const [isRefreshing, setIsRefreshing] = useState(false);
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -122,6 +123,9 @@ export default function AdminGameManagePage() {
 
     const onCreateGame = useCallback(
         async (payload: CreateGamePayload) => {
+            const hasValidServerOptions = !payload.serverRequired || payload.serverOptions.length > 0;
+            const hasValidServerLabel = !payload.serverRequired || Boolean(payload.serverLabel.trim());
+
             if (
                 !payload.slug ||
                 !payload.name ||
@@ -130,7 +134,9 @@ export default function AdminGameManagePage() {
                 !payload.providerType ||
                 !payload.uidLabel ||
                 !payload.uidPlaceholder ||
-                !Number.isFinite(payload.sortOrder)
+                !Number.isFinite(payload.sortOrder) ||
+                !hasValidServerOptions ||
+                !hasValidServerLabel
             ) {
                 toast.error("กรุณากรอกข้อมูลที่จำเป็นให้ครบ");
                 return;
@@ -201,6 +207,7 @@ export default function AdminGameManagePage() {
             !payload.slug ||
             !payload.providerId ||
             !payload.providerGameCode ||
+            !payload.providerType ||
             !payload.uidLabel ||
             !payload.uidPlaceholder
         ) {
@@ -248,14 +255,30 @@ export default function AdminGameManagePage() {
         }
     }, [fetchGames, selectedGame]);
 
+    const filteredGames = useMemo(() => {
+        const keyword = gameNameFilter.trim().toLowerCase();
+        if (!keyword) {
+            return games;
+        }
+
+        return games.filter((game) => {
+            return game.name.toLowerCase().includes(keyword) || game.slug.toLowerCase().includes(keyword);
+        });
+    }, [gameNameFilter, games]);
+
     const summary = useMemo(() => {
-        const activeCount = games.filter((game) => game.isActive).length;
+        const activeCount = filteredGames.filter((game) => game.isActive).length;
+        const packs = filteredGames.reduce((sum, game) => sum + game._count.packs, 0);
+        const orders = filteredGames.reduce((sum, game) => sum + game._count.orders, 0);
+
         return {
-            total: games.length,
+            total: filteredGames.length,
             active: activeCount,
-            inactive: Math.max(games.length - activeCount, 0),
+            inactive: Math.max(filteredGames.length - activeCount, 0),
+            packs,
+            orders,
         };
-    }, [games]);
+    }, [filteredGames]);
 
     const columns = useMemo<ColumnDef<GameItem, unknown>[]>(
         () => [
@@ -326,7 +349,7 @@ export default function AdminGameManagePage() {
 
                     return (
                         <div
-                            className={`w-[200px] h-[50px] overflow-y-auto break-words ${value?.includes("\n")
+                            className={`w-50 h-12.5 overflow-y-auto wrap-break-word ${value?.includes("\n")
                                 ? "whitespace-pre overflow-x-auto"
                                 : "whitespace-nowrap overflow-x-visible"
                                 }`}
@@ -456,6 +479,14 @@ export default function AdminGameManagePage() {
                 </div>
 
                 <div className="flex items-center gap-2">
+                    <input
+                        type="text"
+                        value={gameNameFilter}
+                        onChange={(event) => setGameNameFilter(event.target.value)}
+                        placeholder="ค้นหาชื่อเกม..."
+                        className="h-10 w-full rounded-lg border border-white/20 bg-white/5 px-3 text-sm text-white placeholder:text-white/40 focus:border-white/40 focus:outline-none md:w-64"
+                    />
+
                     <button
                         type="button"
                         onClick={onOpenCreateModal}
@@ -476,7 +507,7 @@ export default function AdminGameManagePage() {
                 </div>
             </div>
 
-            <div className="mb-5 grid gap-3 md:grid-cols-3">
+            <div className="mb-5 grid gap-3 md:grid-cols-5">
                 <div className="rounded-xl border border-white/10 bg-white/5 p-4">
                     <p className="text-xs uppercase tracking-wide text-white/50">ทั้งหมด</p>
                     <p className="mt-2 text-2xl font-bold text-white">{summary.total}</p>
@@ -489,14 +520,22 @@ export default function AdminGameManagePage() {
                     <p className="text-xs uppercase tracking-wide text-[#ff9ca8]">Inactive</p>
                     <p className="mt-2 text-2xl font-bold text-[#ff9ca8]">{summary.inactive}</p>
                 </div>
+                <div className="rounded-xl border border-[#5d4a1b] bg-[#2e2410] p-4">
+                    <p className="text-xs uppercase tracking-wide text-[#f6cf6a]">Packs รวม</p>
+                    <p className="mt-2 text-2xl font-bold text-[#f6cf6a]">{summary.packs}</p>
+                </div>
+                <div className="rounded-xl border border-[#2f4c77] bg-[#151f33] p-4">
+                    <p className="text-xs uppercase tracking-wide text-[#8dc3ff]">Orders รวม</p>
+                    <p className="mt-2 text-2xl font-bold text-[#8dc3ff]">{summary.orders}</p>
+                </div>
             </div>
 
             <TableAdmin
                 columns={columns}
-                data={games}
+                data={filteredGames}
                 isLoading={isLoading}
                 error={error}
-                emptyText="ไม่พบข้อมูลเกม"
+                emptyText={gameNameFilter.trim() ? "ไม่พบเกมที่ค้นหา" : "ไม่พบข้อมูลเกม"}
                 loadingText="กำลังโหลดข้อมูลเกม..."
             />
 

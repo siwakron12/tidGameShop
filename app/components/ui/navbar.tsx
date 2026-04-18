@@ -4,16 +4,16 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
-import { Coins, LogOut, Wallet } from "lucide-react";
+import { Coins, LogOut, Wallet, Gift, House, CreditCard, Gamepad2, Dices } from "lucide-react";
 import { toast } from "sonner";
 import AuthModal from "./auth-modal";
 import { authClient } from "@/lib/auth-client";
 import { useWalletContext } from "../providers/wallet-context";
-
 const navItems = [
-  { label: "หน้าแรก", href: "/", match: ["/"] },
-  { label: "เติมเงิน", href: "/topup", match: ["/topup"] },
-  { label: "เกมทั้งหมด", href: "/products", match: ["/products"] },
+  { label: "หน้าแรก", href: "/", match: ["/"], icon: <House size={18} className="inline-block mr-1 mb-0.5" /> },
+  { label: "เติมเงิน", href: "/topup", match: ["/topup"], icon: <CreditCard size={18} className="inline-block mr-1 mb-0.5" /> },
+  { label: "เกมทั้งหมด", href: "/products", match: ["/products"], icon: <Gamepad2 size={18} /> },
+  { label: "สุ่มรางวัล", href: "/gacha", match: ["/gacha"], icon: <Dices size={18}  /> },
 ];
 
 const gameList = [
@@ -149,12 +149,16 @@ export default function Navbar() {
           : "bg-red-400/10"
       }`}
     >
-      <div className="mx-auto flex h-16 lg:w-3/4 w-full items-center gap-2 px-3 sm:h-20 sm:gap-3 sm:px-6 lg:gap-6 lg:px-8">
+      <div className="mx-auto flex h-16 w-full items-center justify-between gap-2 px-3 sm:h-20 sm:gap-3 sm:px-6 lg:w-3/4 lg:gap-6 lg:px-8">
         <Link
           href="/"
-          className="shrink-0 whitespace-nowrap text-lg font-extrabold tracking-tight text-[#ff1436] sm:text-2xl"
+          className="shrink-0"
         >
-          TitgameShop
+          <img
+            src="https://img1.pic.in.th/images/4.-Titgame-.png"
+            alt="TitgameShop"
+            className=" h-24 w-auto "
+          />
         </Link>
 
         <nav className="hidden items-center gap-5 lg:flex">
@@ -180,12 +184,12 @@ export default function Navbar() {
                   className="absolute bottom-0 left-0 h-0.5 w-full rounded-full bg-[#ff1436]"
                 />
               )}
-              <span className="relative z-10">{item.label}</span>
+              <span className="relative z-10 flex space-x-1 items-center"> <p>{item.icon}</p> <p className="">{item.label}</p></span>
             </Link>
           ))}
         </nav>
 
-        <div className="ml-auto flex min-w-0 flex-1 items-center justify-end gap-2 sm:flex-none sm:gap-3">
+        <div className="flex min-w-0 items-center justify-end gap-2 sm:gap-3">
           <div className="relative hidden sm:block">
   
 
@@ -349,7 +353,7 @@ export default function Navbar() {
             <Link
               key={`mobile-${item.label}`}
               href={item.href}
-              className={`rounded-lg px-3 py-2 text-sm font-semibold transition ${
+              className={`rounded-lg px-3 py-2 text-sm font-semibold transition flex items-center ${
                 item.match.some(
                   (path) =>
                     pathname === path || pathname.startsWith(`${path}/`),
@@ -358,6 +362,7 @@ export default function Navbar() {
                   : "text-white/80 hover:bg-white/10 hover:text-white"
               }`}
             >
+              {item.icon}
               {item.label}
             </Link>
           ))}

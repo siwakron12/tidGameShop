@@ -4,6 +4,7 @@ import { FormEvent, Suspense, useMemo, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { toast } from "sonner";
+import { toApiUrl } from "@/lib/api-url";
 
 export default function ResetPasswordPage() {
   return (
@@ -18,7 +19,6 @@ export default function ResetPasswordPage() {
 function ResetPasswordContent() {
   const searchParams = useSearchParams();
   const token = useMemo(() => searchParams.get("token") ?? "", [searchParams]);
-
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -50,13 +50,30 @@ function ResetPasswordContent() {
     }
 
     setIsSubmitting(true);
-
-    await new Promise((resolve) => setTimeout(resolve, 700));
-
-    toast.success("Mock สำเร็จ: รีเซ็ตรหัสผ่านเรียบร้อย");
-    setNewPassword("");
-    setConfirmPassword("");
-    setIsSubmitting(false);
+    try {
+      const response = await fetch(toApiUrl("/api/auth/reset-password"), {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          token,
+          newPassword,
+        }),
+      });
+      const payload = await response.json().catch(() => null);
+      if (!response.ok || payload?.ok === false) {
+        toast.error(payload?.message || "รีเซ็ตรหัสผ่านไม่สำเร็จ");
+      } else {
+        toast.success("รีเซ็ตรหัสผ่านเรียบร้อย");
+        setNewPassword("");
+        setConfirmPassword("");
+      }
+    } catch {
+      toast.error("เกิดข้อผิดพลาดในการรีเซ็ตรหัสผ่าน");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -74,12 +91,7 @@ function ResetPasswordContent() {
         </div>
 
         <section className="rounded-2xl border border-white/10 bg-white/5 p-5 shadow-[0_20px_60px_rgba(0,0,0,0.45)] backdrop-blur-sm">
-          <div className="mb-4 rounded-xl border border-white/10 bg-black/35 p-3">
-            <p className="text-xs text-white/60">Token จาก URL</p>
-            <p className="mt-1 break-all font-mono text-sm text-[#ff7687]">
-              {token ? tokenPreview : "(ไม่มี token)"}
-            </p>
-          </div>
+         
 
           <form className="space-y-3" onSubmit={handleSubmit}>
             <input
@@ -107,7 +119,7 @@ function ResetPasswordContent() {
               disabled={isSubmitting}
               className="h-11 w-full rounded-xl bg-[#ff001f] text-sm font-black tracking-wide text-white transition hover:bg-[#ff2e47] disabled:cursor-not-allowed disabled:opacity-70"
             >
-              {isSubmitting ? "กำลังรีเซ็ต (mock)..." : "รีเซ็ตรหัสผ่าน (mock)"}
+              {isSubmitting ? "กำลังรีเซ็ต" : "รีเซ็ตรหัสผ่าน "}
             </button>
           </form>
 
