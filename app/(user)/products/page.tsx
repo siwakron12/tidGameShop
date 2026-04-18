@@ -11,6 +11,7 @@ type GameItem = {
   name: string;
   imageUrl: string | null;
   providerSlug: string;
+  tags?: string[];
 };
 
 type GamesResponse = {
@@ -26,6 +27,7 @@ export default function ProductsPage() {
   const [games, setGames] = useState<GameItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
 
   useEffect(() => {
     let isMounted = true;
@@ -73,6 +75,16 @@ export default function ProductsPage() {
     };
   }, []);
 
+  // รวม tag ทั้งหมดแบบ unique
+  const allTags = useMemo(() => {
+    const tagSet = new Set<string>();
+    games.forEach((game) => {
+      (game.tags ?? []).forEach((tag) => tagSet.add(tag));
+    });
+    return Array.from(tagSet);
+  }, [games]);
+
+  // filter เกมด้วย query และ tag (multi-select)
   const filteredGames = useMemo(() => {
     return games.filter((game) => {
       const q = query.trim().toLowerCase();
@@ -81,9 +93,12 @@ export default function ProductsPage() {
         game.name.toLowerCase().includes(q) ||
         game.slug.toLowerCase().includes(q) ||
         game.providerSlug.toLowerCase().includes(q);
-      return matchesQuery;
+      const matchesTags =
+        selectedTags.length === 0 ||
+        selectedTags.every((tag) => (game.tags ?? []).includes(tag));
+      return matchesQuery && matchesTags;
     });
-  }, [games, query]);
+  }, [games, query, selectedTags]);
 
   return (
     <main className="border-t border-white/10 bg-[radial-gradient(circle_at_top,#22080c_0%,#120607_38%,#090909_72%)]">
@@ -119,14 +134,68 @@ export default function ProductsPage() {
                   className="w-full bg-transparent text-sm text-white outline-none placeholder:text-white/40"
                 />
               </label>
+
+            {allTags.length > 0 && (
+              <div
+                className="flex gap-2 mt-2 sm:mt-0 overflow-x-auto max-w-full scrollbar-thin scrollbar-thumb-[#222] scrollbar-track-transparent"
+                style={{ WebkitOverflowScrolling: "touch", paddingBottom: 2 }}
+              >
+                {allTags.map((tag) => {
+                  const isSelected = selectedTags.includes(tag);
+                  return (
+                    <button
+                      key={tag}
+                      type="button"
+                      onClick={() => {
+                        setSelectedTags((prev) =>
+                          isSelected
+                            ? prev.filter((t) => t !== tag)
+                            : [...prev, tag]
+                        );
+                      }}
+                      className={`rounded-full border px-3 py-1 text-xs font-semibold transition flex items-center gap-1 ${
+                        isSelected
+                          ? "border-[#35552a] bg-[#1f2b18] text-[#9ee37d]"
+                          : "border-white/15 bg-white/5 text-white/80 hover:bg-white/10"
+                      }`}
+                    >
+                      {tag}
+                      {isSelected && (
+                        <span
+                          onClick={e => {
+                            e.stopPropagation();
+                            setSelectedTags((prev) => prev.filter((t) => t !== tag));
+                          }}
+                          className="ml-1 cursor-pointer text-[#ff9ca8] hover:text-[#ff5068] "
+                          title="ลบแท็กนี้ออกจากตัวกรอง"
+                        >
+                          ×
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
+                {selectedTags.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => setSelectedTags([])}
+                    className="rounded-full border border-[#ff5068] bg-[#2c0f15] px-3 py-1 text-xs font-semibold text-[#ffc7cf] hover:bg-[#3a1a20] ml-2"
+                  >
+                    ล้าง
+                  </button>
+                )}
+              </div>
+            )}
             </div>
           </div>
         </div>
 
-        <div className="mb-4 flex items-center justify-between">
+
+        <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-sm text-white/65 sm:text-base">
             พบ {filteredGames.length} เกม
           </p>
+         
         </div>
 
         {errorMessage ? (
@@ -161,14 +230,14 @@ export default function ProductsPage() {
               <Link
                 key={game.id}
                 href={`/products/${game.slug}`}
-                className="group block rounded-2xl border border-white/10 bg-black/35 p-3 backdrop-blur-sm transition hover:-translate-y-0.5 hover:border-white/25 hover:bg-black/45"
+                className="group block rounded-2xl border border-white/10 bg-black/35 p-3 backdrop-blur-sm transition hover:-translate-y-0.5 hover:border-white/25 hover:bg-black/45 "
               >
                 <article>
-                  <div className="relative mb-3 flex h-fit items-center justify-center rounded-xl border border-white/10 bg-[#140b0d] sm:h-28">
+                  <div className="relative mb-3 aspect-square overflow-hidden rounded-xl border border-white/10 bg-[#140b0d]">
                     <img
                       src={game.imageUrl ?? fallbackCover}
                       alt={game.name}
-                      className="h-auto w-full max-h-full rounded-2xl object-contain brightness-90"
+                      className="h-full w-full rounded-xl object-cover brightness-90"
                     />
                   </div>
 

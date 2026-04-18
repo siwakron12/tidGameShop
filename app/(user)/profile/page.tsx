@@ -79,11 +79,13 @@ function mapChannelName(channel: string) {
   return channel;
 }
 
+import GachaHistory from "./gacha";
+
 export default function ProfilePage() {
   const { walletBaht, points, isLoading: isWalletLoading, refreshBalances } =
     useWalletContext();
   const [session, setSession] = useState<unknown>(null);
-  const [mainTab, setMainTab] = useState<"history" | "gameMock">("history");
+  const [mainTab, setMainTab] = useState<"history" | "gameMock" | "gacha">("history");
   const [activeTab, setActiveTab] = useState<"wallet" | "points">("wallet");
   const [topupItems, setTopupItems] = useState<TopupItem[]>([]);
   const [pointItems, setPointItems] = useState<PointTransactionItem[]>([]);
@@ -427,6 +429,17 @@ export default function ProfilePage() {
                 >
                   ประวัติเติมเกม
                 </button>
+                <button
+                  type="button"
+                  onClick={() => setMainTab("gacha")}
+                  className={`shrink-0  px-2 py-2 text-sm font-bold whitespace-nowrap transition ${
+                    mainTab === "gacha"
+                      ? "border-b-2 border-[#ff1536] text-white"
+                      : "border-b-2 border-transparent text-white/70 hover:text-white"
+                  }`}
+                >
+                  ประวัติการสุ่ม
+                </button>
               </div>
             </div>
 
@@ -493,8 +506,10 @@ export default function ProfilePage() {
                   />
                 )}
               </>
-            ) : (
+            ) : mainTab === "gameMock" ? (
               <GameTopupHistoryTable />
+            ) : (
+              <GachaHistory />
             )}
           </div>
         </section>

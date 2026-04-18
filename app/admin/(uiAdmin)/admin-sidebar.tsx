@@ -11,10 +11,12 @@ import {
   BarChart3,
   Users,
   Settings,
+  Gift,
   Wallet,
   Gamepad2,
   Building2,
   Package,
+  Dice5,
   ShoppingCart,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
@@ -43,17 +45,18 @@ const adminNavGroups: NavGroup[] = [
       { label: "ผู้ใช้", href: "/admin/users", icon: Users },
       { label: "การเงิน", href: "/admin/transactions", icon: Wallet },
       { label: "orders", href: "/admin/orders", icon: ShoppingCart },
-      { label: "ตั้งค่า", href: "/admin/settings", icon: Settings },
+      { label: "มอบรางวัล", href: "/admin/claims", icon: Gift },
     ],
   },
   {
     key: "game-topup",
-    title: "Game Topup",
+    title: "ระบบเกมและแพ็ค",
     items: [
       { label: "providers", href: "/admin/providers", icon: Building2 },
 
       { label: "gameManange", href: "/admin/gameManange", icon: Gamepad2 },
       { label: "packs", href: "/admin/packs", icon: Package },
+      { label: "ระบบสุ่ม", href: "/admin/gacha", icon: Dice5 },
     ],
   },
 ];
@@ -191,14 +194,14 @@ export default function AdminSidebar() {
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 overflow-y-auto px-4 py-6">
+        <nav className="flex-1 overflow-y-auto px-3 py-4">
           <div className="space-y-6">
             {adminNavGroups.map((group) => (
               <div key={group.key}>
                 <button
                   type="button"
                   onClick={() => toggleGroup(group.key)}
-                  className="flex w-full items-center justify-between rounded-md px-4 pb-2 text-left text-xs font-semibold uppercase tracking-wide text-gray-500 transition-colors hover:text-gray-300"
+                  className="flex w-full items-center justify-between rounded-md px-3 pb-2 text-left text-[11px] font-semibold uppercase tracking-wide text-gray-500 transition-colors hover:text-gray-300"
                 >
                   <span>{group.title}</span>
                   <ChevronDown
@@ -206,7 +209,7 @@ export default function AdminSidebar() {
                     className={`transition-transform ${openGroups[group.key] ? "rotate-180" : "rotate-0"}`}
                   />
                 </button>
-                {openGroups[group.key] && <div className="space-y-2">
+                {openGroups[group.key] && <div className="space-y-1">
                   {group.items.map((item) => {
                     const isActive = isItemActive(item.href);
                     const Icon = item.icon;
@@ -216,7 +219,7 @@ export default function AdminSidebar() {
                         key={item.href}
                         href={item.href}
                         onClick={() => setIsMobileSidebarOpen(false)}
-                        className="group relative flex items-center gap-3 rounded-lg px-4 py-3 transition-all"
+                        className="group relative flex items-center gap-2 rounded-md px-3 py-2 transition-all"
                       >
                         {isActive && (
                           <motion.div
@@ -226,13 +229,13 @@ export default function AdminSidebar() {
                           />
                         )}
                         <Icon
-                          size={20}
+                          size={11}
                           className={`relative z-10 transition-colors ${
                             isActive ? "text-white" : "text-gray-400 group-hover:text-white"
                           }`}
                         />
                         <span
-                          className={`relative z-10 font-medium transition-colors ${
+                          className={`relative z-10 text-[11px] transition-colors ${
                             isActive ? "text-white" : "text-gray-400 group-hover:text-white"
                           }`}
                         >
@@ -277,14 +280,14 @@ export default function AdminSidebar() {
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 overflow-y-auto px-4 py-6">
+        <nav className="flex-1 overflow-y-auto px-3 py-4">
           <div className="space-y-6">
             {adminNavGroups.map((group) => (
               <div key={group.key}>
                 <button
                   type="button"
                   onClick={() => toggleGroup(group.key)}
-                  className="flex w-full items-center justify-between rounded-md px-4 pb-2 text-left text-xs font-semibold uppercase tracking-wide text-gray-500 transition-colors hover:text-gray-300"
+                  className="flex w-full items-center justify-between rounded-md px-3 pb-2 text-left text-[11px] font-semibold uppercase tracking-wide text-gray-500 transition-colors hover:text-gray-300"
                 >
                   <span>{group.title}</span>
                   <ChevronDown
@@ -292,7 +295,7 @@ export default function AdminSidebar() {
                     className={`transition-transform ${openGroups[group.key] ? "rotate-180" : "rotate-0"}`}
                   />
                 </button>
-                {openGroups[group.key] && <div className="space-y-2">
+                {openGroups[group.key] && <div className="space-y-1">
                   {group.items.map((item) => {
                     const isActive = isItemActive(item.href);
                     const Icon = item.icon;
@@ -301,18 +304,18 @@ export default function AdminSidebar() {
                       <Link
                         key={item.href}
                         href={item.href}
-                        className={`group relative flex items-center gap-3 rounded-lg px-4 py-3 transition-all ${
+                        className={`group relative flex items-center gap-2 rounded-md px-3 py-2 transition-all ${
                           isActive ? "bg-[#222222]" : "hover:bg-[#111111]"
                         }`}
                       >
                         <Icon
-                          size={20}
+                          size={18}
                           className={`transition-colors ${
                             isActive ? "text-white" : "text-gray-400 group-hover:text-white"
                           }`}
                         />
                         <span
-                          className={`font-medium transition-colors ${
+                          className={`text-sm font-medium transition-colors ${
                             isActive ? "text-white" : "text-gray-400 group-hover:text-white"
                           }`}
                         >

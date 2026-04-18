@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay } from "swiper/modules";
-import "swiper/css";
+import "swiper/swiper.css";
 
 const games = [
   { id: 1, name: "FF", image: "https://img1.pic.in.th/images/freefire_s470.th.jpg" },

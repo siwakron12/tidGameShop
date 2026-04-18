@@ -73,16 +73,17 @@ export default function PromptpaySlipFlow() {
   const { refreshBalances } = useWalletContext();
   const [qrImage, setQrImage] = useState("");
   const [session, setSession] = useState<UploadSession | null>(null);
-  const [statusDetail, setStatusDetail] =
-    useState<UploadSessionStatusResponse | null>(null);
+  const [statusDetail, setStatusDetail] = useState<UploadSessionStatusResponse | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isCreatingSession, setIsCreatingSession] = useState(false);
   const [isUploadingSlip, setIsUploadingSlip] = useState(false);
   const [isCheckingStatus, setIsCheckingStatus] = useState(false);
+  const [payMobileUrl, setPayMobileUrl] = useState<string>("");
 
   useEffect(() => {
     let mounted = true;
 
+    // 1. สร้าง QR PromptPay ปกติ
     const generateQr = async () => {
       try {
         const dataUrl = await QRCode.toDataURL(PROMPTPAY_PAYLOAD, {
@@ -90,7 +91,6 @@ export default function PromptpaySlipFlow() {
           margin: 1,
           width: 420,
         });
-
         if (mounted) {
           setQrImage(dataUrl);
         }
@@ -98,8 +98,16 @@ export default function PromptpaySlipFlow() {
         toast.error("สร้าง QR ไม่สำเร็จ");
       }
     };
-
     void generateQr();
+
+    // 2. สร้าง upload session อัตโนมัติเมื่อเข้าเพจ
+    const autoCreateSession = async () => {
+      const session = await createUploadSession();
+      if (session?.token) {
+        setPayMobileUrl(`${window.origin}/payForMobile/${session.token}`);
+      }
+    };
+    void autoCreateSession();
 
     return () => {
       mounted = false;
@@ -215,7 +223,7 @@ export default function PromptpaySlipFlow() {
           typeof payload?.message === "string"
             ? payload.message
             : "อัปโหลดสลิปไม่สำเร็จ";
-        toast.error(message); 
+        toast.error(message);
         return;
       }
 
@@ -285,9 +293,38 @@ export default function PromptpaySlipFlow() {
           )}
         </div>
 
-        {/* <p className="mt-3 break-all text-xs text-white/50">
-          {PROMPTPAY_PAYLOAD}
-        </p> */}
+        {payMobileUrl && (
+          <div className="mt-6 flex flex-col items-center">
+            <button
+              type="button"
+              className="rounded-xl bg-[#ff001f] text-white px-5 py-2 font-bold text-sm shadow hover:bg-[#ff2742] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#ff001f]"
+              onClick={() => {
+                const qrDiv = document.getElementById("pay-mobile-qr");
+                if (qrDiv) qrDiv.style.display = qrDiv.style.display === "none" ? "block" : "none";
+              }}
+            >
+              นำสลีปไปชำระผ่านมือถือ ไม่ต้องโยกไฟล์สลิปไปมาอัปโหลดให้ยุ่งยาก
+            </button>
+            <div id="pay-mobile-qr" style={{ display: "none" }} className="mt-4 flex flex-col items-center">
+              <span className="text-white/80 text-sm mb-2">สแกน QR นี้ด้วยมือถือเพื่อไปหน้าชำระเงินอัตโนมัติ</span>
+              <div className="bg-white p-3 rounded-xl">
+                <img
+                  src={`https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(payMobileUrl)}`}
+                  alt="Mobile Payment QR"
+                  className="mx-auto"
+                />
+              </div>
+              <a
+                href={payMobileUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-2 text-xs text-blue-400 underline break-all"
+              >
+                {payMobileUrl}
+              </a>
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="rounded-2xl border border-white/15 bg-[#0a0a0a] p-5">
@@ -297,21 +334,51 @@ export default function PromptpaySlipFlow() {
           อัปโหลด และเช็กสถานะให้ครบอัตโนมัติ
         </p>
 
-       
+
 
         <div className="mt-5">
           <label className="mb-2 block text-sm font-semibold text-white/80">
             อัปโหลดรูปสลิป
           </label>
+          <div
+            id="promptpay-slip-dropzone"
+            className="flex flex-col items-center justify-center w-full h-56 rounded-2xl border-4 border-dashed border-white/20 bg-[#131313] text-white text-lg font-semibold cursor-pointer transition hover:bg-white/10 mb-4"
+            onDragOver={e => {
+              e.preventDefault();
+              e.stopPropagation();
+              e.currentTarget.classList.add("border-[#ff001f]");
+            }}
+            onDragLeave={e => {
+              e.preventDefault();
+              e.stopPropagation();
+              e.currentTarget.classList.remove("border-[#ff001f]");
+            }}
+            onDrop={e => {
+              e.preventDefault();
+              e.stopPropagation();
+              e.currentTarget.classList.remove("border-[#ff001f]");
+              const file = e.dataTransfer.files?.[0] ?? null;
+              setSelectedFile(file);
+            }}
+            onClick={() => {
+              document.getElementById("promptpay-slip-file")?.click();
+            }}
+          >
+            {selectedFile ? (
+              <span className="text-green-400">เลือกไฟล์แล้ว: {selectedFile.name}</span>
+            ) : (
+              <span>ลากและวางไฟล์สลิปที่นี่ หรือคลิกเพื่อเลือกไฟล์</span>
+            )}
+          </div>
           <input
             id="promptpay-slip-file"
             type="file"
             accept="image/*"
-            onChange={(event) => {
+            style={{ display: "none" }}
+            onChange={event => {
               const file = event.target.files?.[0] ?? null;
               setSelectedFile(file);
             }}
-            className="block w-full cursor-pointer rounded-lg border border-white/15 bg-[#131313] p-2 text-sm text-white file:mr-3 file:rounded-md file:border-0 file:bg-white/10 file:px-3 file:py-1.5 file:text-white hover:file:bg-white/20"
           />
 
           <button
