@@ -75,7 +75,9 @@ function mapChannelName(channel: string) {
   if (channel === "TRUEWALLET_VOUCHER") {
     return "True Wallet";
   }
-
+  if (channel === "SLIP_VERIFY") {
+    return "ชำระด้วยสลิป";
+  }
   return channel;
 }
 

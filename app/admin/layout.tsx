@@ -22,7 +22,14 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthorized, setIsAuthorized] = useState(false);
+  const [isMd, setIsMd] = useState(false);
 
+  useEffect(() => {
+    const check = () => setIsMd(window.innerWidth >= 768);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
   useEffect(() => {
     let cancelled = false;
 
@@ -85,11 +92,11 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   }
 
   return (
-    <div className="min-h-screen overflow-x-auto bg-[#000000] text-white">
-      <div className="flex min-h-screen min-w-275">
+    <div className="bg-[#000000] text-white">
+      <div className="min-w-275">
         <AdminSidebar />
-        <div className="flex min-w-0 flex-1 flex-col">
-          <div className="flex-1 overflow-auto">{children}</div>
+        <div className="min-h-screen" style={{ paddingLeft: isMd ? "256px" : "0px" }}>
+          {children}
         </div>
       </div>
     </div>

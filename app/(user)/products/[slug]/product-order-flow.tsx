@@ -7,6 +7,7 @@ import Swal from "sweetalert2";
 import { toApiUrl } from "@/lib/api-url";
 import { authClient } from "@/lib/auth-client";
 import AuthModal from "@/app/components/ui/auth-modal";
+import { useWalletContext } from "../../../components/providers/wallet-context";
 
 type PriceView = {
     cents: number;
@@ -60,6 +61,7 @@ type ProductOrderFlowProps = {
 };
 
 export function ProductOrderFlow({ game, packs, fallbackCover }: ProductOrderFlowProps) {
+    const { refreshBalances } = useWalletContext();
     const [uid, setUid] = useState("");
     const [serverId, setServerId] = useState<string>("");
     const [selectedPackId, setSelectedPackId] = useState<string | null>(packs[0]?.id ?? null);
@@ -67,6 +69,7 @@ export function ProductOrderFlow({ game, packs, fallbackCover }: ProductOrderFlo
     const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [isGuideVisible, setIsGuideVisible] = useState(false);
+    const [acceptTerms, setAcceptTerms] = useState(false);
 
     const selectedPack = useMemo(
         () => packs.find((pack) => pack.id === selectedPackId) ?? null,
@@ -101,7 +104,8 @@ export function ProductOrderFlow({ game, packs, fallbackCover }: ProductOrderFlo
             !selectedPack ||
             (game.uidRequired && uid.trim().length === 0) ||
             (game.serverRequired && (!serverId || serverId.trim().length === 0)) ||
-            isLoading
+            isLoading ||
+            !acceptTerms
         );
 
     const handleOrder = async () => {
@@ -158,7 +162,8 @@ export function ProductOrderFlow({ game, packs, fallbackCover }: ProductOrderFlo
                 throw new Error(json.message ?? "สั่งซื้อไม่สำเร็จ");
             }
 
-            toast.success("สั่งซื้อสำเร็จ");
+            toast.success("สั่งซื้อสำเร็จ ระบบกำลังดำเนินการเติมเกมให้คุณ...");
+            await refreshBalances();
         } catch (error) {
             const message = error instanceof Error ? error.message : "เกิดข้อผิดพลาด";
             toast.error(message);
@@ -201,7 +206,7 @@ export function ProductOrderFlow({ game, packs, fallbackCover }: ProductOrderFlo
                                                 aria-label={isGuideVisible ? "ซ่อนวิธีการเติม" : "แสดงวิธีการเติม"}
                                                 title={isGuideVisible ? "ซ่อน" : "แสดง"}
                                             >
-                                                {isGuideVisible ? <EyeOff size={15} /> : <Eye size={15} />}
+                                                {isGuideVisible ? <EyeOff size={22} /> : <Eye size={22} />}
                                             </button>
                                         </div>
 
@@ -244,7 +249,7 @@ export function ProductOrderFlow({ game, packs, fallbackCover }: ProductOrderFlo
                                     >
                                         <option value="" className="text-white bg-black">-- เลือก --</option>
                                         {game.serverOptions.map(opt => (
-                                            <option key={opt.value} value={opt.value} className="text-white bg-black">{opt.label} ({opt.value})</option>
+                                            <option key={opt.value} value={opt.value} className="text-white bg-black">{opt.label} </option>
                                         ))}
                                     </select>
                                 </>
@@ -315,7 +320,7 @@ export function ProductOrderFlow({ game, packs, fallbackCover }: ProductOrderFlo
             <aside className="sticky top-16 sm:top-20 self-start w-full lg:w-2/4">
                 <div className="overflow-hidden rounded-2xl border border-white/15 bg-[#140b0d] backdrop-blur-xl">
                     <div className="border-b border-white/10 bg-linear-to-r from-[#d90d2c]/85 to-[#a20920]/80 px-5 py-4">
-                        <h3 className="text-lg font-bold text-white">ช่องทางชำระเงิน</h3>
+                        <h3 className="text-lg font-bold text-white">การชำระเงิน</h3>
                     </div>
 
                     <div className="space-y-3 px-5 py-5 text-sm text-white/80">
@@ -353,6 +358,18 @@ export function ProductOrderFlow({ game, packs, fallbackCover }: ProductOrderFlo
                             </p>
                         </div>
 
+                        <div className="flex items-center gap-2 mb-2">
+                            <input
+                                id="acceptTerms"
+                                type="checkbox"
+                                checked={acceptTerms}
+                                onChange={e => setAcceptTerms(e.target.checked)}
+                                className="mt-1 accent-[#ff334b]"
+                            />
+                            <label htmlFor="acceptTerms" className="text-xs text-white/70 select-none cursor-pointer">
+                                ข้อมูลถูกต้องและยอมรับเงื่อนไขการให้บริการของเรา
+                            </label>
+                        </div>
                         <button
                             type="button"
                             disabled={isOrderDisabled}
@@ -373,8 +390,6 @@ export function ProductOrderFlow({ game, packs, fallbackCover }: ProductOrderFlo
                                 </span>
                             )}
                         </button>
-
-                        <p className="mt-3 text-center text-[11px] text-white/45">การกดสั่งซื้อถือว่ายอมรับเงื่อนไขการใช้งาน</p>
                     </div>
                 </div>
 

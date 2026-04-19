@@ -18,6 +18,8 @@ import {
   Package,
   Dice5,
   ShoppingCart,
+  Banknote,
+  Bell,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { useState, useEffect } from "react";
@@ -44,6 +46,7 @@ const adminNavGroups: NavGroup[] = [
       { label: "แดชบอร์ด", href: "/admin", icon: BarChart3 },
       { label: "ผู้ใช้", href: "/admin/users", icon: Users },
       { label: "การเงิน", href: "/admin/transactions", icon: Wallet },
+      { label: "แจ้งเตือน", href: "/admin/noti", icon: Bell },
       { label: "orders", href: "/admin/orders", icon: ShoppingCart },
       { label: "มอบรางวัล", href: "/admin/claims", icon: Gift },
     ],
@@ -53,7 +56,6 @@ const adminNavGroups: NavGroup[] = [
     title: "ระบบเกมและแพ็ค",
     items: [
       { label: "providers", href: "/admin/providers", icon: Building2 },
-
       { label: "gameManange", href: "/admin/gameManange", icon: Gamepad2 },
       { label: "packs", href: "/admin/packs", icon: Package },
       { label: "ระบบสุ่ม", href: "/admin/gacha", icon: Dice5 },
@@ -82,7 +84,6 @@ export default function AdminSidebar() {
 
   useEffect(() => {
     let cancelled = false;
-
     const loadSession = async () => {
       try {
         const result = await authClient.getSession();
@@ -91,17 +92,11 @@ export default function AdminSidebar() {
           setSession((record?.data as unknown) ?? result ?? null);
         }
       } catch {
-        if (!cancelled) {
-          setSession(null);
-        }
+        if (!cancelled) setSession(null);
       }
     };
-
     loadSession();
-
-    return () => {
-      cancelled = true;
-    };
+    return () => { cancelled = true; };
   }, []);
 
   const handleSignOut = async () => {
@@ -117,15 +112,13 @@ export default function AdminSidebar() {
     }
   };
 
-  const user = session && typeof session === "object" && "user" in session 
-    ? (session.user as SessionUser) 
-    : null;
+  const user =
+    session && typeof session === "object" && "user" in session
+      ? (session.user as SessionUser)
+      : null;
 
   const isItemActive = (href: string) => {
-    if (href === "/admin") {
-      return pathname === "/admin";
-    }
-
+    if (href === "/admin") return pathname === "/admin";
     return pathname === href || pathname.startsWith(`${href}/`);
   };
 
@@ -133,29 +126,103 @@ export default function AdminSidebar() {
     group.items.some((item) => isItemActive(item.href));
 
   const toggleGroup = (groupKey: string) => {
-    setOpenGroups((prev) => ({
-      ...prev,
-      [groupKey]: !prev[groupKey],
-    }));
+    setOpenGroups((prev) => ({ ...prev, [groupKey]: !prev[groupKey] }));
   };
 
   useEffect(() => {
     const activeGroup = adminNavGroups.find((group) => isGroupActive(group));
-    if (!activeGroup) {
-      return;
-    }
-
+    if (!activeGroup) return;
     setOpenGroups((prev) => {
-      if (prev[activeGroup.key]) {
-        return prev;
-      }
-
-      return {
-        ...prev,
-        [activeGroup.key]: true,
-      };
+      if (prev[activeGroup.key]) return prev;
+      return { ...prev, [activeGroup.key]: true };
     });
   }, [pathname]);
+
+  const SidebarContent = ({ onLinkClick }: { onLinkClick?: () => void }) => (
+    <>
+      {/* Header */}
+      <div className="border-b border-[#222222] px-6 py-8">
+        <Link href="/admin" className="text-xl font-bold text-white">
+          TitGameShop
+        </Link>
+        <p className="mt-1 text-sm text-gray-400">Admin Panel</p>
+      </div>
+
+      {/* Navigation */}
+      <nav className="flex-1 overflow-y-auto px-3 py-4">
+        <div className="space-y-6">
+          {adminNavGroups.map((group) => (
+            <div key={group.key}>
+              <button
+                type="button"
+                onClick={() => toggleGroup(group.key)}
+                className="flex w-full items-center justify-between rounded-md px-3 pb-2 text-left text-[11px] font-semibold uppercase tracking-wide text-gray-500 transition-colors hover:text-gray-300"
+              >
+                <span>{group.title}</span>
+                <ChevronDown
+                  size={14}
+                  className={`transition-transform ${openGroups[group.key] ? "rotate-180" : "rotate-0"}`}
+                />
+              </button>
+              {openGroups[group.key] && (
+                <div className="space-y-1">
+                  {group.items.map((item) => {
+                    const isActive = isItemActive(item.href);
+                    const Icon = item.icon;
+                    return (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        onClick={onLinkClick}
+                        className={`group relative flex items-center gap-2 rounded-md px-3 py-2 transition-all ${isActive ? "bg-[#222222]" : "hover:bg-[#111111]"
+                          }`}
+                      >
+                        <Icon
+                          size={18}
+                          className={`transition-colors ${isActive ? "text-white" : "text-gray-400 group-hover:text-white"
+                            }`}
+                        />
+                        <span
+                          className={`text-sm font-medium transition-colors ${isActive ? "text-white" : "text-gray-400 group-hover:text-white"
+                            }`}
+                        >
+                          {item.label}
+                        </span>
+                      </Link>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </nav>
+
+      {/* User Info & Sign Out */}
+      <div className="border-t border-[#222222] px-4 py-6 flex flex-col gap-2">
+        {user && (
+          <div className="mb-2">
+            <p className="text-sm font-medium text-white">{user.name || "Admin"}</p>
+            <p className="text-xs text-gray-500">{user.email}</p>
+          </div>
+        )}
+        <Link
+          href="/"
+          className="flex w-full border border-white/20 items-center justify-center gap-2 rounded-lg bg-green-600/10 px-4 py-2 text-sm font-medium text-green-500 transition-all hover:bg-green-600/20"
+        >
+          กลับไปหน้าเว็บไซต์
+        </Link>
+        <button
+          onClick={handleSignOut}
+          disabled={isSigningOut}
+          className="flex w-full items-center justify-center gap-2 rounded-lg bg-red-600/10 px-4 py-2 text-sm font-medium text-red-500 transition-all hover:bg-red-600/20 disabled:opacity-50"
+        >
+          <LogOut size={16} />
+          {isSigningOut ? "กำลังออกจากระบบ..." : "ออกจากระบบ"}
+        </button>
+      </div>
+    </>
+  );
 
   return (
     <>
@@ -167,7 +234,7 @@ export default function AdminSidebar() {
         {isMobileSidebarOpen ? <X size={24} /> : <Menu size={24} />}
       </button>
 
-      {/* Sidebar Backdrop for Mobile */}
+      {/* Mobile Backdrop */}
       {isMobileSidebarOpen && (
         <motion.div
           initial={{ opacity: 0 }}
@@ -185,168 +252,13 @@ export default function AdminSidebar() {
         transition={{ type: "spring", stiffness: 300, damping: 30 }}
         className="fixed left-0 top-0 z-40 flex h-screen w-64 flex-col border-r border-[#222222] bg-[#0a0a0a] md:hidden"
       >
-        {/* Header */}
-        <div className="border-b border-[#222222] px-6 py-8">
-          <Link href="/admin" className="text-xl font-bold text-white">
-            TidGameShop
-          </Link>
-          <p className="mt-1 text-sm text-gray-400">Admin Panel</p>
-        </div>
-
-        {/* Navigation */}
-        <nav className="flex-1 overflow-y-auto px-3 py-4">
-          <div className="space-y-6">
-            {adminNavGroups.map((group) => (
-              <div key={group.key}>
-                <button
-                  type="button"
-                  onClick={() => toggleGroup(group.key)}
-                  className="flex w-full items-center justify-between rounded-md px-3 pb-2 text-left text-[11px] font-semibold uppercase tracking-wide text-gray-500 transition-colors hover:text-gray-300"
-                >
-                  <span>{group.title}</span>
-                  <ChevronDown
-                    size={14}
-                    className={`transition-transform ${openGroups[group.key] ? "rotate-180" : "rotate-0"}`}
-                  />
-                </button>
-                {openGroups[group.key] && <div className="space-y-1">
-                  {group.items.map((item) => {
-                    const isActive = isItemActive(item.href);
-                    const Icon = item.icon;
-
-                    return (
-                      <Link
-                        key={item.href}
-                        href={item.href}
-                        onClick={() => setIsMobileSidebarOpen(false)}
-                        className="group relative flex items-center gap-2 rounded-md px-3 py-2 transition-all"
-                      >
-                        {isActive && (
-                          <motion.div
-                            layoutId="activeNav"
-                            className="absolute inset-0 rounded-lg bg-[#222222]"
-                            transition={{ type: "spring", stiffness: 380, damping: 40 }}
-                          />
-                        )}
-                        <Icon
-                          size={11}
-                          className={`relative z-10 transition-colors ${
-                            isActive ? "text-white" : "text-gray-400 group-hover:text-white"
-                          }`}
-                        />
-                        <span
-                          className={`relative z-10 text-[11px] transition-colors ${
-                            isActive ? "text-white" : "text-gray-400 group-hover:text-white"
-                          }`}
-                        >
-                          {item.label}
-                        </span>
-                      </Link>
-                    );
-                  })}
-                </div>}
-              </div>
-            ))}
-          </div>
-        </nav>
-
-        {/* User Info & Sign Out */}
-        <div className="border-t border-[#222222] px-4 py-6">
-          {user && (
-            <div className="mb-4">
-              <p className="text-sm font-medium text-white">{user.name || "Admin"}</p>
-              <p className="text-xs text-gray-500">{user.email}</p>
-            </div>
-          )}
-          <button
-            onClick={handleSignOut}
-            disabled={isSigningOut}
-            className="flex w-full items-center justify-center gap-2 rounded-lg bg-red-600/10 px-4 py-2 text-sm font-medium text-red-500 transition-all hover:bg-red-600/20 disabled:opacity-50"
-          >
-            <LogOut size={16} />
-            {isSigningOut ? "กำลังออกจากระบบ..." : "ออกจากระบบ"}
-          </button>
-        </div>
+        <SidebarContent onLinkClick={() => setIsMobileSidebarOpen(false)} />
       </motion.aside>
 
       {/* Desktop Sidebar */}
-      <aside className="hidden h-screen w-64 flex-col border-r border-[#222222] bg-[#0a0a0a] md:flex">
-        {/* Header */}
-        <div className="border-b border-[#222222] px-6 py-8">
-          <Link href="/admin" className="text-xl font-bold text-white">
-            TidGameShop
-          </Link>
-          <p className="mt-1 text-sm text-gray-400">Admin Panel</p>
-        </div>
-
-        {/* Navigation */}
-        <nav className="flex-1 overflow-y-auto px-3 py-4">
-          <div className="space-y-6">
-            {adminNavGroups.map((group) => (
-              <div key={group.key}>
-                <button
-                  type="button"
-                  onClick={() => toggleGroup(group.key)}
-                  className="flex w-full items-center justify-between rounded-md px-3 pb-2 text-left text-[11px] font-semibold uppercase tracking-wide text-gray-500 transition-colors hover:text-gray-300"
-                >
-                  <span>{group.title}</span>
-                  <ChevronDown
-                    size={14}
-                    className={`transition-transform ${openGroups[group.key] ? "rotate-180" : "rotate-0"}`}
-                  />
-                </button>
-                {openGroups[group.key] && <div className="space-y-1">
-                  {group.items.map((item) => {
-                    const isActive = isItemActive(item.href);
-                    const Icon = item.icon;
-
-                    return (
-                      <Link
-                        key={item.href}
-                        href={item.href}
-                        className={`group relative flex items-center gap-2 rounded-md px-3 py-2 transition-all ${
-                          isActive ? "bg-[#222222]" : "hover:bg-[#111111]"
-                        }`}
-                      >
-                        <Icon
-                          size={18}
-                          className={`transition-colors ${
-                            isActive ? "text-white" : "text-gray-400 group-hover:text-white"
-                          }`}
-                        />
-                        <span
-                          className={`text-sm font-medium transition-colors ${
-                            isActive ? "text-white" : "text-gray-400 group-hover:text-white"
-                          }`}
-                        >
-                          {item.label}
-                        </span>
-                      </Link>
-                    );
-                  })}
-                </div>}
-              </div>
-            ))}
-          </div>
-        </nav>
-
-        {/* User Info & Sign Out */}
-        <div className="border-t border-[#222222] px-4 py-6">
-          {user && (
-            <div className="mb-4">
-              <p className="text-sm font-medium text-white">{user.name || "Admin"}</p>
-              <p className="text-xs text-gray-500">{user.email}</p>
-            </div>
-          )}
-          <button
-            onClick={handleSignOut}
-            disabled={isSigningOut}
-            className="flex w-full items-center justify-center gap-2 rounded-lg bg-red-600/10 px-4 py-2 text-sm font-medium text-red-500 transition-all hover:bg-red-600/20 disabled:opacity-50"
-          >
-            <LogOut size={16} />
-            {isSigningOut ? "กำลังออกจากระบบ..." : "ออกจากระบบ"}
-          </button>
-        </div>
+      {/* Desktop Sidebar */}
+      <aside className="hidden w-64 flex-col border-r border-[#222222] bg-[#0a0a0a] md:flex fixed left-0 top-0 h-screen overflow-y-auto">
+        <SidebarContent />
       </aside>
     </>
   );

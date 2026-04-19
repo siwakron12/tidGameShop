@@ -105,7 +105,7 @@ export default function AuthLoginForm({
         },
         body: JSON.stringify({
           email: resetEmail.trim(),
-          redirectTo: "http://localhost:3000/resetPassword",
+          redirectTo: "https://titgame.shop/resetPassword",
         }),
       });
 
@@ -116,7 +116,7 @@ export default function AuthLoginForm({
         return;
       }
 
-      toast.success(`ส่งลิงก์รีเซ็ตไปที่ ${resetEmail.trim()} สำเร็จ`);
+      toast.success(`หากมี email ${resetEmail.trim()} นี้ในระบบเราได้ส่งคำขอรีเซ็ตสำเร็จ `);
       setIsForgotModalOpen(false);
     } catch (error) {
       toast.error("เกิดข้อผิดพลาดในการส่งลิงก์รีเซ็ตรหัสผ่าน");
