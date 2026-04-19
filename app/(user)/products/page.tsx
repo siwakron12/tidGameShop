@@ -95,7 +95,7 @@ export default function ProductsPage() {
         game.providerSlug.toLowerCase().includes(q);
       const matchesTags =
         selectedTags.length === 0 ||
-        selectedTags.every((tag) => (game.tags ?? []).includes(tag));
+        selectedTags.some((tag) => (game.tags ?? []).includes(tag));
       return matchesQuery && matchesTags;
     });
   }, [games, query, selectedTags]);

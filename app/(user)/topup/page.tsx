@@ -1,11 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { toast } from "sonner";
 import { toApiUrl } from "@/lib/api-url";
 import { useWalletContext } from "../../components/providers/wallet-context";
 import PromptpaySlipFlow from "./promptpay-slip-flow";
+import { authClient } from "@/lib/auth-client";
+import AuthModal from "@/app/components/ui/auth-modal";
 
 const paymentMethods = [
   {
@@ -28,13 +30,48 @@ const paymentMethods = [
 
 export default function TopupPage() {
   const { refreshBalances } = useWalletContext();
+
   const [selectedMethod, setSelectedMethod] = useState<string>("truewallet");
   const [voucherUrl, setVoucherUrl] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isSessionLoading, setIsSessionLoading] = useState(true);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+
   const currentMethod = paymentMethods.find((m) => m.id === selectedMethod);
 
+  const loadSession = useCallback(async () => {
+    try {
+      const result = await authClient.getSession();
+      const record = result as Record<string, unknown> | null;
+      const nextSession = (record?.data as unknown) ?? result ?? null;
+      const nextRecord = nextSession as Record<string, unknown> | null;
+      const hasUser = Boolean(nextRecord && "user" in nextRecord && nextRecord.user);
+      setIsLoggedIn(hasUser);
+    } catch {
+      setIsLoggedIn(false);
+    } finally {
+      setIsSessionLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    void loadSession();
+  }, [loadSession]);
+
+  const handleAuthModalClose = useCallback(async () => {
+    setIsAuthModalOpen(false);
+    await loadSession();
+    await refreshBalances();
+  }, [loadSession, refreshBalances]);
+
   const handleProceed = async () => {
+    if (!isLoggedIn) {
+      setIsAuthModalOpen(true);
+      return;
+    }
+
     if (selectedMethod !== "truewallet") {
       toast.info("รองรับเฉพาะ True Wallet ชั่วคราว");
       return;
@@ -58,28 +95,21 @@ export default function TopupPage() {
       const response = await fetch(toApiUrl("/api/topups/truewallet"), {
         method: "POST",
         credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          voucherUrl: normalizedVoucherUrl,
-        }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ voucherUrl: normalizedVoucherUrl }),
       });
 
-      const result = (await response.json().catch(() => null)) as
-        | Record<string, unknown>
-        | null;
+      const result = (await response.json().catch(() => null)) as Record<string, unknown> | null;
 
       if (response.status === 401) {
         toast.error("กรุณาเข้าสู่ระบบก่อนเติมเงิน");
+        setIsAuthModalOpen(true);
         return;
       }
 
       if (!response.ok || result?.ok === false) {
         const message =
-          typeof result?.message === "string"
-            ? result.message
-            : "เติมเงินไม่สำเร็จ กรุณาลองใหม่";
+          typeof result?.message === "string" ? result.message : "เติมเงินไม่สำเร็จ กรุณาลองใหม่";
         toast.error(message);
         return;
       }
@@ -116,9 +146,7 @@ export default function TopupPage() {
                 <button
                   key={method.id}
                   type="button"
-                  onClick={() => {
-                    setSelectedMethod(method.id);
-                  }}
+                  onClick={() => setSelectedMethod(method.id)}
                   disabled={!method.enabled}
                   className={`w-full rounded-2xl border-2 p-4 text-left transition ${
                     selectedMethod === method.id
@@ -144,10 +172,8 @@ export default function TopupPage() {
                 <div className={`mb-8 rounded-2xl border-2 ${currentMethod?.color} p-0.5`}>
                   <div className="rounded-2xl bg-[#0a0a0a] p-6">
                     <h3 className="mb-4 flex items-center gap-2 text-lg font-semibold text-white">
-                      {/* <span className="text-2xl">{currentMethod?.icon}</span> */}
                       {currentMethod?.name}
                     </h3>
-
                     <div className="space-y-4">
                       <div>
                         <label className="block text-sm font-medium text-white/80">
@@ -157,12 +183,11 @@ export default function TopupPage() {
                           type="url"
                           placeholder="https://gift.truemoney.com/campaign/?v=..."
                           value={voucherUrl}
-                          onChange={(event) => setVoucherUrl(event.target.value)}
+                          onChange={(e) => setVoucherUrl(e.target.value)}
                           disabled={isLoading}
                           className="mt-2 w-full rounded-lg border border-white/15 bg-[#151515] px-4 py-3 text-white placeholder:text-white/40 focus:border-[#ff1536] focus:outline-none"
                         />
                       </div>
-
                       <div className="rounded-lg border border-white/10 bg-white/5 p-4">
                         <p className="text-sm text-white/70">
                           ใส่ลิงก์ซองอั่งเปาแล้วกดปุ่มเติมเงิน ระบบจะตรวจสอบและเพิ่มยอดให้อัตโนมัติ
@@ -176,23 +201,37 @@ export default function TopupPage() {
                   <button
                     type="button"
                     onClick={handleProceed}
-                    disabled={isLoading || !voucherUrl.trim()}
+                    disabled={isLoading || isSessionLoading}
                     className="w-full rounded-xl bg-[#ff1536] py-4 font-bold text-white transition hover:bg-[#ff2a48] disabled:cursor-not-allowed disabled:opacity-50"
                   >
-                    {isLoading ? "กำลังเติมเงิน..." : "เติมเงินด้วย True Wallet"}
+                    {isSessionLoading
+                      ? "กำลังโหลด..."
+                      : !isLoggedIn
+                      ? "เข้าสู่ระบบเพื่อเติมเงิน"
+                      : isLoading
+                      ? "กำลังเติมเงิน..."
+                      : "เติมเงินด้วย True Wallet"}
                   </button>
-
                   <p className="mt-4 text-center text-xs text-white/50">
                     ด้วยการกดปุ่มนี้ คุณยอมรับเงื่อนไขการให้บริการและนโยบายความเป็นส่วนตัว
                   </p>
                 </div>
               </>
             ) : (
-              <PromptpaySlipFlow />
+              <PromptpaySlipFlow
+                isLoggedIn={isLoggedIn}
+                onRequestLogin={() => setIsAuthModalOpen(true)}
+              />
             )}
           </div>
         </div>
       </div>
+
+      <AuthModal
+        isOpen={isAuthModalOpen}
+        onClose={handleAuthModalClose}
+        initialTab="login"
+      />
     </main>
   );
 }

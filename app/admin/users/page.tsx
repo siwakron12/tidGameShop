@@ -8,6 +8,7 @@ import TableAdmin from "../(uiAdmin)/TableAdmin";
 import RoleChangeModal from "./role-change-modal";
 import AdjustBalanceModal from "./adjust-balance-modal";
 import UserTransactionsModal from "./transactions";
+import AddNoti from "./addNoti";
 
 type UserRole = "admin" | "user";
 type SearchField = "email" | "name" | "role";
@@ -376,7 +377,8 @@ export default function AdminUsersPage() {
               >
                 {updatingRoleId === user.id ? "กำลังเปลี่ยน..." : "เปลี่ยน Role"}
               </button>
-           
+
+              <AddNoti userId={user.id} />
             </div>
           );
         },

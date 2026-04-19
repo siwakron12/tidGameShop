@@ -4,11 +4,12 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
-import { Coins, LogOut, Wallet, Gift, House, CreditCard, Gamepad2, Dices } from "lucide-react";
+import { Coins, LogOut, Wallet, Gift, House, CreditCard, Gamepad2, Dices, Bell } from "lucide-react";
 import { toast } from "sonner";
 import AuthModal from "./auth-modal";
 import { authClient } from "@/lib/auth-client";
 import { useWalletContext } from "../providers/wallet-context";
+import NotificationBell from "./notification-bell";
 const navItems = [
   { label: "หน้าแรก", href: "/", match: ["/"], icon: <House size={18} className="inline-block mr-1 mb-0.5" /> },
   { label: "เติมเงิน", href: "/topup", match: ["/topup"], icon: <CreditCard size={18} className="inline-block mr-1 mb-0.5" /> },
@@ -271,12 +272,12 @@ export default function Navbar() {
                   </div>
                 </div>
               </Link>
-
+                <NotificationBell/>
               <button
                 type="button"
                 onClick={handleLogout}
                 disabled={isSigningOut}
-                className="inline-flex size-10 items-center justify-center rounded-xl border border-[#ff4d5f]/40 bg-[#1b1113] text-[#ff4d5f] transition hover:bg-[#281318] disabled:cursor-not-allowed disabled:opacity-60"
+                className=" hidden lg:flex justify-center size-10 items-center  rounded-xl border border-[#ff4d5f]/40 bg-[#1b1113] text-[#ff4d5f] transition hover:bg-[#281318] disabled:cursor-not-allowed disabled:opacity-60"
                 aria-label="ออกจากระบบ"
               >
                 <LogOut size={16} />
