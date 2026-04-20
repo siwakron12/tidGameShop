@@ -4,6 +4,9 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import type { ColumnDef } from "@tanstack/react-table";
 import { toast } from "sonner";
 import TableAdmin from "../(uiAdmin)/TableAdmin";
+import Swal from "sweetalert2";
+import withReactContent from "sweetalert2-react-content";
+const MySwal = withReactContent(Swal);
 import { toApiUrl } from "@/lib/api-url";
 import CreateGameModal, { type CreateGamePayload } from "./create-game-modal";
 import EditGameModal, { type EditGamePayload } from "./edit-game-modal";
@@ -280,6 +283,39 @@ export default function AdminGameManagePage() {
         };
     }, [filteredGames]);
 
+    const handleDeleteGame = useCallback(async (game: GameItem) => {
+        const result = await MySwal.fire({
+            title: 'ยืนยันการลบเกม?',
+            text: `คุณต้องการลบเกม "${game.name}" หรือไม่? การลบนี้ไม่สามารถย้อนกลับได้`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#222',
+            background: '#181818',
+            color: '#fff',
+            confirmButtonText: 'ลบ',
+            cancelButtonText: 'ยกเลิก',
+            customClass: {
+                popup: 'swal2-dark',
+            },
+        });
+        if (result.isConfirmed) {
+            try {
+                const res = await fetch(toApiUrl(`/api/admin/games/${game.id}`), {
+                    method: 'DELETE',
+                    credentials: 'include',
+                });
+                if (!res.ok) {
+                    throw new Error('ลบเกมไม่สำเร็จ');
+                }
+                toast.success('ลบเกมสำเร็จ');
+                await fetchGames();
+            } catch (err) {
+                toast.error(err instanceof Error ? err.message : 'ลบเกมไม่สำเร็จ');
+            }
+        }
+    }, [fetchGames]);
+
     const columns = useMemo<ColumnDef<GameItem, unknown>[]>(
         () => [
             {
@@ -453,16 +489,25 @@ export default function AdminGameManagePage() {
                 id: "actions",
                 cell: ({ row }) => {
                     const game = row.original;
-
                     return (
-                        <button
-                            type="button"
-                            onClick={() => onOpenEditModal(game)}
-                            disabled={isUpdatingGame}
-                            className="rounded-lg border border-[#2f4c77] bg-[#1a1f2b] px-2.5 py-1.5 text-xs font-semibold text-[#8dc3ff] hover:bg-[#20293a] disabled:cursor-not-allowed disabled:opacity-60"
-                        >
-                            แก้ไข
-                        </button>
+                        <div className="flex gap-2">
+                            <button
+                                type="button"
+                                onClick={() => onOpenEditModal(game)}
+                                disabled={isUpdatingGame}
+                                className="rounded-lg border border-[#2f4c77] bg-[#1a1f2b] px-2.5 py-1.5 text-xs font-semibold text-[#8dc3ff] hover:bg-[#20293a] disabled:cursor-not-allowed disabled:opacity-60"
+                            >
+                                แก้ไข
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => handleDeleteGame(game)}
+                                disabled={isUpdatingGame}
+                                className="rounded-lg border border-[#7a2a34] bg-[#2b1418] px-2.5 py-1.5 text-xs font-semibold text-[#ff9ca8] hover:bg-[#3a1a23] disabled:cursor-not-allowed disabled:opacity-60"
+                            >
+                                ลบ
+                            </button>
+                        </div>
                     );
                 },
             },

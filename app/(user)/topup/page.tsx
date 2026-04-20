@@ -212,9 +212,9 @@ export default function TopupPage() {
                       ? "กำลังเติมเงิน..."
                       : "เติมเงินด้วย True Wallet"}
                   </button>
-                  <p className="mt-4 text-center text-xs text-white/50">
-                    ด้วยการกดปุ่มนี้ คุณยอมรับเงื่อนไขการให้บริการและนโยบายความเป็นส่วนตัว
-                  </p>
+                 <p className="text-sm  text-white/50 mt-2">
+          ! เงินที่เติมเข้าจะไม่ถสามารถถอนได้ และจะถูกใช้สำหรับสำหรับทำธุรกรรมในเว็บไซต์เท่านั้น
+        </p>
                 </div>
               </>
             ) : (

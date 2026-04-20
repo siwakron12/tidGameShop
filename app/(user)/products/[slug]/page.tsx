@@ -12,6 +12,7 @@ type PriceView = {
 };
 
 type GameDetail = {
+ howToImg: string | null;
   id: string;
   slug: string;
   name: string;

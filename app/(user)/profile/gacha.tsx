@@ -188,30 +188,46 @@ export default function GachaHistory() {
 
     return (
         <div className="w-full">
-            <div className="mb-4 flex gap-2 items-center">
-                <button
-                    className={`px-4 py-2 rounded-lg font-bold text-sm transition ${tab === "spins" ? "bg-[#ff1536] text-white" : "bg-white/10 text-white/70 hover:text-white"}`}
-                    onClick={() => setTab("spins")}
-                >
-                    ประวัติการสุ่มทั้งหมด
-                </button>
-                <button
-                    className={`px-4 py-2 rounded-lg font-bold text-sm transition ${tab === "claims" ? "bg-[#ff1536] text-white" : "bg-white/10 text-white/70 hover:text-white"}`}
-                    onClick={() => setTab("claims")}
-                >
-                    รางวัลของฉัน
-                </button>
-                {tab === "claims" && (
-                    <select
-                        className="ml-4 px-3 py-2 rounded-lg bg-[#181818] text-white border border-white/10 text-sm outline-none"
-                        value={claimStatus}
-                        onChange={e => setClaimStatus(e.target.value as any)}
-                    >
-                        <option value="PENDING">รอดำเนินการ</option>
-                        <option value="FULFILLED">รับแล้ว</option>
-                        <option value="CANCELLED">ยกเลิก</option>
-                    </select>
-                )}
+            <div className="mb-4 lg:flex gap-2 items-center  lg:justify-between">
+                <div>
+                    <h2 className="text-lg lg:text-4xl font-bold text-white">ประวัติรายการ</h2>
+                </div>
+                <div className="flex lg:mt-0 mt-2">
+                    <div className="flex rounded-xl bg-[#1e1e2e] p-0.5 border border-white/20">
+                        <button
+                            type="button"
+                            onClick={() => setTab("spins")}
+                            className={`shrink-0 rounded-lg px-3 py-1.5 font-semibold whitespace-nowrap text-xs sm:text-sm transition ${tab === "spins"
+                                ? "bg-[#ff1536] text-white"
+                                : "text-white/70 hover:bg-white/5 hover:text-white"
+                                }`}
+                        >
+                            ประวัติการสุ่มทั้งหมด
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => setTab("claims")}
+                            className={`shrink-0 rounded-lg px-3 py-1.5 font-semibold whitespace-nowrap text-xs sm:text-sm transition ${tab === "claims"
+                                ? "bg-[#ff1536] text-white"
+                                : "text-white/70 hover:bg-white/5 hover:text-white"
+                                }`}
+                        >
+                            รางวัลของฉัน
+                        </button>
+                    </div>   
+                    {tab === "claims" && (
+                        <select
+                            className=" ml-1 lg:ml-4 py-2 rounded-lg bg-[#181818] text-white border border-white/10 text-sm outline-none"
+                            value={claimStatus}
+                            onChange={e => setClaimStatus(e.target.value as any)}
+                        >
+                            <option value="PENDING">รอดำเนินการ</option>
+                            <option value="FULFILLED">รับแล้ว</option>
+                            <option value="CANCELLED">ยกเลิก</option>
+                        </select>
+                    )}
+                </div>
+
             </div>
             {tab === "spins" ? (
                 <>

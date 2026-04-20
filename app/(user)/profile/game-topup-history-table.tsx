@@ -191,7 +191,7 @@ export default function GameTopupHistoryTable({
     <div className="rounded-3xl border border-white/10 bg-[#050505] p-5 sm:p-6">
       <div className="mb-4 flex items-start justify-between gap-3">
         <div>
-          <h2 className="text-4xl font-bold text-white">{title}</h2>
+          <h2 className="text-lg lg:text-4xl font-bold text-white">{title}</h2>
           <p className="mt-1 text-sm text-white/55">{subtitle}</p>
         </div>
      

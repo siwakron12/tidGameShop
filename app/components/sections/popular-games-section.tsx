@@ -57,7 +57,7 @@ export default function PopularGamesSection() {
                     <img
                       src={game.imageUrl}
                       alt={game.name}
-                      className="w-full h-auto brightness-75 transition-all duration-200 group-hover:brightness-90 group-hover:scale-105"
+                      className="w-full h-auto  transition-all duration-200 group-hover:brightness-90 group-hover:scale-105"
                     />
                   ) : (
                     <div className="flex h-44 w-full items-center justify-center bg-[#151515] text-sm text-white/30">

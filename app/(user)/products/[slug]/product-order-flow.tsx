@@ -1,14 +1,15 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Eye, EyeOff, Info, User } from "lucide-react";
+import { Eye, EyeOff, Info, SquareUser, Star, User } from "lucide-react";
 import { toast } from "sonner";
 import Swal from "sweetalert2";
 import { toApiUrl } from "@/lib/api-url";
 import { authClient } from "@/lib/auth-client";
 import AuthModal from "@/app/components/ui/auth-modal";
 import { useWalletContext } from "../../../components/providers/wallet-context";
-
+import { UidPickerButton } from "./Uidpickerbutton";
+import { UidSaveButton } from "./Uidsavebutton";
 type PriceView = {
     cents: number;
     baht: string;
@@ -35,11 +36,13 @@ type GamePack = {
     sellingPrice: PriceView;
     isCustomPack: boolean;
     bundleItems: BundleItem[];
+    
 };
 
 type GameDetail = {
     id: string;
     slug: string;
+    howToImg: string | null;
     name: string;
     imageUrl: string | null;
     description: string | null;
@@ -61,6 +64,7 @@ type ProductOrderFlowProps = {
 };
 
 export function ProductOrderFlow({ game, packs, fallbackCover }: ProductOrderFlowProps) {
+   
     const { refreshBalances } = useWalletContext();
     const [uid, setUid] = useState("");
     const [serverId, setServerId] = useState<string>("");
@@ -70,7 +74,7 @@ export function ProductOrderFlow({ game, packs, fallbackCover }: ProductOrderFlo
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [isGuideVisible, setIsGuideVisible] = useState(false);
     const [acceptTerms, setAcceptTerms] = useState(false);
-
+    const gameSlug = game.slug;
     const selectedPack = useMemo(
         () => packs.find((pack) => pack.id === selectedPackId) ?? null,
         [packs, selectedPackId],
@@ -185,7 +189,7 @@ export function ProductOrderFlow({ game, packs, fallbackCover }: ProductOrderFlo
                         <h2 className="text-base font-semibold text-white sm:text-lg">ระบุ {game.uidLabel}</h2>
                     </div>
 
-                    <div className="flex  flex-col items-center gap-8 sm:flex-row sm:items-start"> 
+                    <div className="flex  flex-col items-center gap-8 sm:flex-row sm:items-start">
                         <img
                             src={game.imageUrl ?? fallbackCover}
                             alt={game.name}
@@ -211,9 +215,19 @@ export function ProductOrderFlow({ game, packs, fallbackCover }: ProductOrderFlo
                                         </div>
 
                                         {isGuideVisible ? (
-                                            <p className="mt-2 text-xs leading-relaxed text-gray-300 lg:text-sm">
-                                                กรอก UID ของคุณให้ถูกต้อง เลือกแพ็กเกจที่ต้องการ และชำระเงินผ่านเครดิตในระบบ หลังจากนั้นระบบจะทำคาร เติมเกมให้อัตโนมัติ
-                                            </p>
+                                            (game.howToImg && game.howToImg.trim() !== "") ? (
+                                                <img
+                                                    src={game.howToImg}
+                                                    alt="วิธีการเติมเกม"
+                                                    className="mt-2 rounded-lg border border-white/15 max-w-full mx-auto h-auto"
+                                                    style={{ maxHeight: 500 }}
+                                                />
+                                            ) : (
+                                                <p className="mt-2 text-xs leading-relaxed text-gray-300 lg:text-sm">
+                                              
+                                                    กรอก UID ของคุณให้ถูกต้อง เลือกแพ็กเกจที่ต้องการ และชำระเงินผ่านเครดิตในระบบ หลังจากนั้นระบบจะทำคาร เติมเกมให้อัตโนมัติ
+                                                </p>
+                                            )
                                         ) : (
                                             <p className="mt-2 text-xs text-white/55">กดไอคอนลูกตาเพื่อแสดงรายละเอียด</p>
                                         )}
@@ -224,15 +238,20 @@ export function ProductOrderFlow({ game, packs, fallbackCover }: ProductOrderFlo
                             <label htmlFor="uid" className="mt-3 block text-xs text-white/70">
                                 กรอก {game.uidLabel}
                             </label>
-                            <input
-                                id="uid"
-                                type="text"
-                                value={uid}
-                                onChange={(event) => setUid(event.target.value)}
-                                required={game.uidRequired}
-                                placeholder={game.uidPlaceholder ?? "เช่น 12345678"}
-                                className="mt-1 h-11 w-full rounded-lg border border-white bg-white/5 px-3 text-sm text-white outline-none transition placeholder:text-white/35 focus:border-[#ff334b]"
-                            />
+                            <div className="flex items-center gap-2 ">
+                                <input
+                                    id="uid"
+                                    type="text"
+                                    value={uid}
+                                    onChange={(event) => setUid(event.target.value)}
+                                    required={game.uidRequired}
+                                    placeholder={game.uidPlaceholder ?? "เช่น 12345678"}
+                                    className="mt-1 h-11 w-full rounded-lg border border-white bg-white/5 px-3 text-sm text-white outline-none transition placeholder:text-white/35 focus:border-[#ff334b]"
+                                />
+                                <UidSaveButton uid={uid} gameSlug={gameSlug} />
+                                <UidPickerButton gameSlug={gameSlug} onSelect={(val) => setUid(val)} />
+                            </div>
+
 
                             {game.serverRequired && Array.isArray(game.serverOptions) && game.serverOptions.length > 0 && (
                                 <>
@@ -289,7 +308,16 @@ export function ProductOrderFlow({ game, packs, fallbackCover }: ProductOrderFlo
                                                 : "border-white/10 bg-black/25 hover:border-white/25",
                                         ].join(" ")}
                                     >
+                                        {/* รูป pack ถ้ามี */}
+                                        {(pack.imageUrl && pack.imageUrl.trim() !== "") && (
+                                            <img
+                                                src={pack.imageUrl}
+                                                alt={pack.name}
+                                                className="mb-2 rounded-lg border border-white/10 object-cover min-w-12  w-20 mx-auto max-h-24 h-auto"
+                                            />
+                                        )}
                                         <div className="flex items-start justify-between gap-3">
+                                            
                                             <p className="line-clamp-2 text-sm font-semibold text-white sm:text-base">{pack.name}</p>
                                             {pack.bundleItems.length > 0 ? (
                                                 <span className="rounded bg-[#96c93d]/20 px-2 py-0.5 text-[10px] font-semibold text-[#b8ec52]">
@@ -362,9 +390,10 @@ export function ProductOrderFlow({ game, packs, fallbackCover }: ProductOrderFlo
                             <input
                                 id="acceptTerms"
                                 type="checkbox"
+                                style={{ accentColor: "#ff001f" }}
                                 checked={acceptTerms}
                                 onChange={e => setAcceptTerms(e.target.checked)}
-                                className="mt-1 accent-[#ff334b]"
+                                className="mt-1 "
                             />
                             <label htmlFor="acceptTerms" className="text-xs text-white/70 select-none cursor-pointer">
                                 ข้อมูลถูกต้องและยอมรับเงื่อนไขการให้บริการของเรา

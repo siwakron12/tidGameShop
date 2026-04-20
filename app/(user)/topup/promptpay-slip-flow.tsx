@@ -109,11 +109,14 @@ export default function PromptpaySlipFlow({ isLoggedIn, onRequestLogin }: Props)
   };
 
   const handleCustomAmountChange = (val: string) => {
-    setCustomAmount(val);
+    // ล็อคไม่ให้ต่ำกว่า 10
+    let sanitized = val.replace(/^0+/, "");
+    if (sanitized && Number(sanitized) < 10) sanitized = "10";
+    setCustomAmount(sanitized);
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => {
-      const num = parseFloat(val);
-      setAmount(!isNaN(num) && num > 0 ? num : null);
+      const num = parseFloat(sanitized);
+      setAmount(!isNaN(num) && num >= 10 ? num : null);
     }, 400);
   };
 
@@ -282,13 +285,17 @@ export default function PromptpaySlipFlow({ isLoggedIn, onRequestLogin }: Props)
         {/* Custom amount input */}
         <input
           type="number"
-          min={1}
+          min={10}
           value={customAmount}
           placeholder="กรอกจำนวนเงินเอง (บาท)"
-          onChange={(e) => handleCustomAmountChange(e.target.value)}
+          onChange={(e) => {
+            let v = e.target.value;
+            if (v && Number(v) < 10) v = "10";
+            handleCustomAmountChange(v);
+          }}
           className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder-white/30 focus:outline-none focus:border-white/30 mb-5"
         />
-
+  <p className="text-white/50">ขั้นต่ำ 10 บาท</p>
         {/* QR */}
         <div className="rounded-2xl border border-white/10 w-fit mx-auto bg-white p-3 mb-3">
           {qrImage ? (
@@ -432,6 +439,9 @@ export default function PromptpaySlipFlow({ isLoggedIn, onRequestLogin }: Props)
             ? "เข้าสู่ระบบเพื่อยืนยันการชำระ"
             : "ยืนยันการชำระ"}
         </button>
+        <p className="text-sm  text-white/50 mt-2">
+         ! เงินที่เติมเข้าจะไม่ถสามารถถอนได้ และจะถูกใช้สำหรับสำหรับทำธุรกรรมในเว็บไซต์เท่านั้น
+        </p>
       </div>
 
     </div>

@@ -2,6 +2,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { toApiUrl } from "@/lib/api-url";
+import { div } from "framer-motion/client";
 
 const NO_IMAGE = "https://dummyimage.com/640x640/1a1a1a/9ca3af&text=NO+IMAGE";
 
@@ -40,7 +41,11 @@ export default async function GachaPage() {
   const campaigns = await fetchGachaCampaigns();
     console.log("Gacha campaigns:", campaigns); // Debug log
   return (
-    <main className="mx-auto w-full max-w-7xl px-4 py-12">
+   
+
+   <div className="bg-[#070707]">
+
+     <main className="mx-auto w-full  max-w-7xl px-4 py-12">
       <div className="mb-8 flex items-end justify-between">
         <div>
           <p className="text-xs font-semibold tracking-[0.2em] text-[#ff5f74]">GACHA CAMPAIGNS</p>
@@ -81,5 +86,6 @@ export default async function GachaPage() {
         ))}
       </div>
     </main>
+   </div>
   );
 }
