@@ -424,7 +424,7 @@ export default function PromptpaySlipFlow({ isLoggedIn, onRequestLogin }: Props)
           type="button"
           onClick={handleConfirmPayment}
           disabled={isLoading || isCreatingSession}
-          className="lg:hidden inline-flex w-full items-center justify-center rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-sm font-bold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-50"
+          className=" inline-flex w-full items-center justify-center rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-sm font-bold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-50"
         >
           {isLoading
             ? "กำลังยืนยันรายการ..."
