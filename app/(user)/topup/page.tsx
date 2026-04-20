@@ -125,7 +125,7 @@ export default function TopupPage() {
   };
 
   return (
-    <main className="min-h-screen bg-black">
+    <main className="min-h-screen bg-[#070707]">
       <div className="mx-auto w-full max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
         <div className="mb-10">
           <Link

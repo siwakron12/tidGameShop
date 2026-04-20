@@ -92,13 +92,11 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   }
 
   return (
-    <div className="bg-[#000000] text-white">
-      <div className="min-w-275">
+    <div className="bg-[#000000]  min-h-screen text-white">
         <AdminSidebar />
-        <div className="min-h-screen" style={{ paddingLeft: isMd ? "256px" : "0px" }}>
+        <div className=" overflow-auto" style={{ paddingLeft: isMd ? "256px" : "0px" }}>
           {children}
         </div>
-      </div>
     </div>
   );
 }

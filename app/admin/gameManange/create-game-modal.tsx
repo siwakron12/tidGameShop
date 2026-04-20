@@ -35,6 +35,7 @@ export type CreateGamePayload = {
   }>;
   tags: string[];
   sortOrder: number;
+  howToImg: string;
 };
 
 type CreateGameModalProps = {
@@ -61,6 +62,7 @@ const initialForm = {
   serverOptions: [] as Array<{ value: string; label: string }>,
   tags: [] as string[],
   sortOrder: "1",
+  howToImg: "",
 };
 
 export default function CreateGameModal({
@@ -88,6 +90,7 @@ export default function CreateGameModal({
   const [tags, setTags] = useState(initialForm.tags);
   const [tagInput, setTagInput] = useState("");
   const [sortOrder, setSortOrder] = useState(initialForm.sortOrder);
+  const [howToImg, setHowToImg] = useState(initialForm.howToImg);
   const [providers, setProviders] = useState<ProviderOption[]>([]);
   const [isLoadingProviders, setIsLoadingProviders] = useState(false);
   const [providerError, setProviderError] = useState<string | null>(null);
@@ -95,6 +98,7 @@ export default function CreateGameModal({
   useEffect(() => {
     if (!isOpen) {
       return;
+      setHowToImg(initialForm.howToImg);
     }
 
     let cancelled = false;
@@ -202,6 +206,7 @@ export default function CreateGameModal({
       })),
       tags: tags.map((tag) => tag.trim()).filter(Boolean),
       sortOrder: Number(sortOrder),
+      howToImg: howToImg.trim(),
     });
   };
 
@@ -244,6 +249,7 @@ export default function CreateGameModal({
         <p className="mt-1 text-sm text-white/70">กรอกข้อมูลเกมใหม่สำหรับ /api/admin/games (POST)</p>
 
         <div className="mt-4 grid gap-3 md:grid-cols-2">
+                    
           <label className="flex flex-col gap-1">
             <span className="text-xs font-semibold text-white/60">slug</span>
             <input
@@ -307,7 +313,7 @@ export default function CreateGameModal({
               className="h-10 rounded-lg border border-white/15 bg-black/40 px-3 text-sm text-white outline-none placeholder:text-white/40 disabled:cursor-not-allowed disabled:opacity-60"
             />
           </label>
-
+              
           <label className="flex flex-col gap-1">
             <span className="text-xs font-semibold text-white/60">imageUrl</span>
             <input
@@ -329,6 +335,17 @@ export default function CreateGameModal({
               className="h-10 rounded-lg border border-white/15 bg-black/40 px-3 text-sm text-white outline-none placeholder:text-white/40 disabled:cursor-not-allowed disabled:opacity-60"
             />
           </label>
+          {/* HOW TO IMG FIELD */}
+                    <label className="flex flex-col gap-1 md:col-span-2">
+                      <span className="text-xs font-semibold text-white/60">How To Image URL</span>
+                      <input
+                        value={howToImg}
+                        onChange={(event) => setHowToImg(event.target.value)}
+                        disabled={isSubmitting}
+                        placeholder="URL ของภาพวิธีเติมเกม"
+                        className="h-10 rounded-lg border border-white/15 bg-black/40 px-3 text-sm text-white outline-none placeholder:text-white/40 disabled:cursor-not-allowed disabled:opacity-60"
+                      />
+                    </label>
 
           <label className="flex flex-col gap-1 md:col-span-2">
             <span className="text-xs font-semibold text-white/60">description</span>

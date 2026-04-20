@@ -51,7 +51,7 @@ export default function GachaSection() {
   }, []);
 
   return (
-    <section className="border-b border-white/10 bg-[#0b0b0b]/23 py-12">
+    <section className="border-b border-white/10 bg-[#070707] py-12">
       <div className="mx-auto w-full max-w-7xl px-4">
         <div className="mb-8 flex items-end justify-between">
           <div>

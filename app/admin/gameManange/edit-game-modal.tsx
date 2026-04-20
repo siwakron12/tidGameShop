@@ -32,6 +32,7 @@ export type EditGamePayload = {
   serverOptions: Array<{ value: string; label: string }>;
   tags: string[];
   isRecommended: boolean;
+  howToImg: string;
 };
 
 type EditGameModalProps = {
@@ -85,6 +86,7 @@ export default function EditGameModal({
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState("");
   const [isRecommended, setIsRecommended] = useState(false);
+  const [howToImg, setHowToImg] = useState("");
   const [providers, setProviders] = useState<ProviderOption[]>([]);
   const [isLoadingProviders, setIsLoadingProviders] = useState(false);
   const [providerError, setProviderError] = useState<string | null>(null);
@@ -113,6 +115,7 @@ export default function EditGameModal({
     setTags((game as any).tags ?? []);
     setTagInput("");
     setIsRecommended((game as any).isRecommended ?? false);
+    setHowToImg((game as any).howToImg ?? "");
   }, [game, isOpen]);
 
   useEffect(() => {
@@ -193,6 +196,7 @@ export default function EditGameModal({
       })),
       tags: tags.map((tag) => tag.trim()).filter(Boolean),
       isRecommended,
+      howToImg: howToImg.trim(),
     });
   };
 
@@ -227,6 +231,8 @@ export default function EditGameModal({
         <p className="mt-1 text-sm text-white/70">แก้ไขข้อมูลเกม และบันทึกผ่าน API PATCH</p>
 
         <div className="mt-4 grid gap-3 md:grid-cols-2">
+                              {/* HOW TO IMG FIELD */}
+                          
                     {/* TAGS FIELD */}
        
 
@@ -249,7 +255,16 @@ export default function EditGameModal({
               className="h-10 rounded-lg border border-white/15 bg-black/40 px-3 text-sm text-white outline-none placeholder:text-white/40 disabled:cursor-not-allowed disabled:opacity-60"
             />
           </label>
-
+    <label className="flex flex-col gap-1 md:col-span-2">
+                                <span className="text-xs font-semibold text-white/60">How To Image URL</span>
+                                <input
+                                  value={howToImg}
+                                  onChange={(event) => setHowToImg(event.target.value)}
+                                  disabled={isSubmitting}
+                                  placeholder="URL ของภาพวิธีเติมเกม"
+                                  className="h-10 rounded-lg border border-white/15 bg-black/40 px-3 text-sm text-white outline-none placeholder:text-white/40 disabled:cursor-not-allowed disabled:opacity-60"
+                                />
+                              </label>
           <label className="flex flex-col gap-1 md:col-span-2">
             <span className="text-xs font-semibold text-white/60">Description</span>
             <textarea

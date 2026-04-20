@@ -404,7 +404,16 @@ export default function AdminPacksPage() {
       cancelled = true;
     };
   }, [fetchGames]);
+  const [gameSearch, setGameSearch] = useState("");
+  const [isGameDropdownOpen, setIsGameDropdownOpen] = useState(false);
 
+  const filteredGames = useMemo(
+    () =>
+      games.filter((game) =>
+        game.name.toLowerCase().includes(gameSearch.toLowerCase()),
+      ),
+    [games, gameSearch],
+  );
   useEffect(() => {
     void fetchPacksByGame(selectedGameId);
   }, [fetchPacksByGame, selectedGameId]);
@@ -521,21 +530,46 @@ export default function AdminPacksPage() {
 
       <div className="mb-5 rounded-2xl border border-white/10 bg-white/5 p-4">
         <div className="grid gap-4 lg:grid-cols-[minmax(0,360px)_1fr]">
-          <label className="flex flex-col gap-1">
+          <label className="flex flex-col gap-1 relative">
             <span className="text-xs font-semibold text-white/60">เลือกเกม</span>
-            <select
-              value={selectedGameId}
-              onChange={(event) => setSelectedGameId(event.target.value)}
-              disabled={isLoadingGames || games.length === 0}
-              className="h-10 rounded-lg border border-white/15 bg-black/40 px-3 text-sm text-white outline-none disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              {games.length === 0 ? <option value="">ไม่พบเกม</option> : null}
-              {games.map((game) => (
-                <option key={game.id} value={game.id}>
-                  {game.name}
-                </option>
-              ))}
-            </select>
+
+            <div className="relative">
+              <input
+                type="text"
+                value={isGameDropdownOpen ? gameSearch : (selectedGame?.name ?? "")}
+                onChange={(e) => setGameSearch(e.target.value)}
+                onFocus={() => {
+                  setGameSearch("");
+                  setIsGameDropdownOpen(true);
+                }}
+                onBlur={() => setTimeout(() => setIsGameDropdownOpen(false), 150)}
+                disabled={isLoadingGames || games.length === 0}
+                placeholder="ค้นหาเกม..."
+                className="h-10 w-full rounded-lg border border-white/15 bg-black/40 px-3 text-sm text-white outline-none disabled:cursor-not-allowed disabled:opacity-60"
+              />
+
+              {isGameDropdownOpen && (
+                <ul className="absolute z-50 mt-1 max-h-56 w-full overflow-y-auto rounded-lg border border-white/15 bg-[#000000] shadow-xl">
+                  {filteredGames.length === 0 ? (
+                    <li className="px-3 py-2 text-sm text-white/40">ไม่พบเกม</li>
+                  ) : (
+                    filteredGames.map((game) => (
+                      <li
+                        key={game.id}
+                        onMouseDown={() => {
+                          setSelectedGameId(game.id);
+                          setIsGameDropdownOpen(false);
+                        }}
+                        className={`cursor-pointer px-3 py-2 text-sm hover:bg-white/10 ${game.id === selectedGameId ? "bg-white/5 text-[#8dc3ff]" : "text-white"
+                          }`}
+                      >
+                        {game.name}
+                      </li>
+                    ))
+                  )}
+                </ul>
+              )}
+            </div>
           </label>
 
           <div className="rounded-xl border border-white/10 bg-black/30 p-3">
@@ -615,7 +649,7 @@ export default function AdminPacksPage() {
             + สร้าง bundle pack
           </button>
 
-         
+
         </div>
 
         {errorGames ? (
