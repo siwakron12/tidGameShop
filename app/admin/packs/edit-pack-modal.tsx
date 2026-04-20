@@ -33,6 +33,7 @@ export default function EditPackModal({ isOpen, pack, onClose, onSaved }: EditPa
   const [sellingPrice, setSellingPrice] = useState("");
   const [sortOrder, setSortOrder] = useState("0");
   const [profitPercent, setProfitPercent] = useState("0");
+  const [providerCost, setProviderCost] = useState("");
   const [isActive, setIsActive] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -47,6 +48,7 @@ export default function EditPackModal({ isOpen, pack, onClose, onSaved }: EditPa
     setSortOrder(String(pack.sortOrder));
     setProfitPercent(String(pack.profitPercent));
     setIsActive(Boolean(pack.isActive));
+    setProviderCost((pack as any).providerCost !== undefined ? String((pack as any).providerCost) : "");
   }, [isOpen, pack]);
 
   if (!isOpen || !pack) {
@@ -57,6 +59,7 @@ export default function EditPackModal({ isOpen, pack, onClose, onSaved }: EditPa
     const parsedSellingPrice = Number(sellingPrice);
     const parsedSortOrder = Number(sortOrder);
     const parsedProfitPercent = Number(profitPercent);
+    const parsedProviderCost = Number(providerCost);
 
     if (!name.trim()) {
       toast.error("กรุณากรอกชื่อ pack");
@@ -73,8 +76,14 @@ export default function EditPackModal({ isOpen, pack, onClose, onSaved }: EditPa
       return;
     }
 
+
     if (!Number.isFinite(parsedProfitPercent) || parsedProfitPercent < 0) {
       toast.error("profitPercent ไม่ถูกต้อง");
+      return;
+    }
+
+    if (!Number.isFinite(parsedProviderCost) || parsedProviderCost < 0) {
+      toast.error("providerCost ไม่ถูกต้อง");
       return;
     }
 
@@ -92,6 +101,7 @@ export default function EditPackModal({ isOpen, pack, onClose, onSaved }: EditPa
           sellingPrice: parsedSellingPrice,
           sortOrder: parsedSortOrder,
           profitPercent: parsedProfitPercent,
+          providerCost: parsedProviderCost,
           isActive,
         }),
       });
@@ -153,7 +163,7 @@ export default function EditPackModal({ isOpen, pack, onClose, onSaved }: EditPa
           </label>
 
           <label className="flex flex-col gap-1">
-            <span className="text-xs font-semibold text-white/60">sellingPrice</span>
+            <span className="text-xs font-semibold text-white/60">sellingPrice (ราคาขาย)</span>
             <input
               type="number"
               min="0"
@@ -161,6 +171,20 @@ export default function EditPackModal({ isOpen, pack, onClose, onSaved }: EditPa
               value={sellingPrice}
               onChange={(event) => setSellingPrice(event.target.value)}
               disabled={isSubmitting}
+              className="h-10 rounded-lg border border-white/15 bg-black/40 px-3 text-sm text-white outline-none disabled:cursor-not-allowed disabled:opacity-60"
+            />
+          </label>
+
+          <label className="flex flex-col gap-1">
+            <span className="text-xs font-semibold text-white/60">providerCost (ต้นทุ่น)</span>
+            <input
+              type="number"
+              min="0"
+              step="0.01"
+              value={providerCost}
+              onChange={(event) => setProviderCost(event.target.value)}
+              disabled={isSubmitting}
+              placeholder="เช่น 3300"
               className="h-10 rounded-lg border border-white/15 bg-black/40 px-3 text-sm text-white outline-none disabled:cursor-not-allowed disabled:opacity-60"
             />
           </label>
