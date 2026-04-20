@@ -112,12 +112,12 @@ export default function Page() {
   }
 
   return (
-    <>
+    <div className="bg-[#070707]">
       {spinResult && (
         <RewardPopup result={spinResult} onClose={() => setSpinResult(null)} />
       )}
 
-      <main className="mx-auto w-full max-w-7xl px-4 py-10 flex flex-col md:flex-row gap-8">
+      <main className="mx-auto  w-full max-w-7xl px-4 py-10 flex flex-col md:flex-row gap-8">
         {/* Left: info + spin */}
         <section className="flex-1 flex flex-col items-center justify-center gap-4">
           <div className="w-full flex flex-col items-center justify-center">
@@ -185,6 +185,7 @@ export default function Page() {
                 </span>
               </button>
             </div>
+            <p className="text-white/60 text-sm mt-2  ">สุ่มได้มากสุด 50 ต่อครั้ง</p>
           </div>
         </section>
 
@@ -253,6 +254,6 @@ export default function Page() {
         onClose={handleAuthModalClose}
         initialTab="login"
       />
-    </>
+    </div>
   );
 }

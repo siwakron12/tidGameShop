@@ -7,6 +7,7 @@ import { toast } from "sonner";
 type AuthRegisterFormProps = {
   onSuccess: () => void;
   onBusyChange: (isBusy: boolean) => void;
+  onAcceptTermsChange?: (accept: boolean) => void;
 };
 
 function getErrorMessage(error: unknown, fallback: string) {
@@ -25,12 +26,13 @@ function getErrorMessage(error: unknown, fallback: string) {
   return fallback;
 }
 
-export default function AuthRegisterForm({ onSuccess, onBusyChange }: AuthRegisterFormProps) {
+export default function AuthRegisterForm({ onSuccess, onBusyChange, onAcceptTermsChange }: AuthRegisterFormProps) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [acceptTerms, setAcceptTerms] = useState(false);
 
   const hasMinLength = password.length >= 8;
   const hasLowercase = /[a-z]/.test(password);
@@ -101,8 +103,8 @@ export default function AuthRegisterForm({ onSuccess, onBusyChange }: AuthRegist
       }
 
       toast.success("สมัครสมาชิกสำเร็จ กำลังเข้าสู่ระบบ...");
-      
-        onSuccess();
+
+      onSuccess();
 
     } catch (error) {
       toast.error(getErrorMessage(error, "สมัครสมาชิกไม่สำเร็จ"));
@@ -111,6 +113,12 @@ export default function AuthRegisterForm({ onSuccess, onBusyChange }: AuthRegist
       onBusyChange(false);
     }
   };
+
+  // แจ้ง parent ทุกครั้งที่ acceptTerms เปลี่ยน (ถ้ามี prop นี้)
+  function handleAcceptTermsChange(checked: boolean) {
+    setAcceptTerms(checked);
+    if (onAcceptTermsChange) onAcceptTermsChange(checked);
+  }
 
   return (
     <form className="space-y-3" onSubmit={handleSubmit}>
@@ -174,13 +182,31 @@ export default function AuthRegisterForm({ onSuccess, onBusyChange }: AuthRegist
         </div>
       ) : null}
 
+      <div className="flex items-center gap-2 mt-2">
+        <input
+          id="acceptTerms"
+          type="checkbox"
+          checked={acceptTerms}
+          onChange={e => handleAcceptTermsChange(e.target.checked)}
+          disabled={isSubmitting}
+          className="h-4 w-4"
+          style={{ accentColor: "#ff001f" }}
+        />
+        <label htmlFor="acceptTerms" className="text-xs text-white/70 select-none cursor-pointer">
+          ฉันยอมรับ <a href="/terms" target="_blank" className="underline text-white/80">เงื่อนไขการใช้งาน</a>
+        </label>
+      </div>
+
       <button
         type="submit"
-        disabled={isSubmitting}
-        className="h-11 w-full rounded-xl bg-[#ff001f] text-sm font-black tracking-wide text-white transition hover:bg-[#ff2742]"
+        disabled={isSubmitting || !acceptTerms}
+        className="h-11 w-full rounded-xl bg-[#ff001f] text-sm font-black tracking-wide text-white transition hover:bg-[#ff2742] disabled:opacity-60 disabled:cursor-not-allowed"
       >
         {isSubmitting ? "กำลังสมัครสมาชิก..." : "สมัครสมาชิก"}
       </button>
+
+      {/* ปุ่ม Login ด้วย Google (ถ้ามี) - ย้ายไปควบคุมใน AuthModal */}
+
     </form>
   );
 }

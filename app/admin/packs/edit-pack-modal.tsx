@@ -36,7 +36,6 @@ export default function EditPackModal({ isOpen, pack, onClose, onSaved }: EditPa
   const [providerCost, setProviderCost] = useState("");
   const [isActive, setIsActive] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
   useEffect(() => {
     if (!isOpen || !pack) {
       return;
@@ -48,7 +47,7 @@ export default function EditPackModal({ isOpen, pack, onClose, onSaved }: EditPa
     setSortOrder(String(pack.sortOrder));
     setProfitPercent(String(pack.profitPercent));
     setIsActive(Boolean(pack.isActive));
-    setProviderCost((pack as any).providerCost !== undefined ? String((pack as any).providerCost) : "");
+    setProviderCost((pack as any).providerCost !== undefined ? String((pack as any).providerCost.baht) : "");
   }, [isOpen, pack]);
 
   if (!isOpen || !pack) {

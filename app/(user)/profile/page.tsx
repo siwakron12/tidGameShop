@@ -449,7 +449,7 @@ export default function ProfilePage() {
               <>
                 <div className="mb-4 flex items-start justify-between gap-3">
                   <div>
-                    <h2 className="text-4xl font-bold text-white">ประวัติรายการ</h2>
+                    <h2 className="text-lg lg:text-4xl font-bold text-white">ประวัติรายการ</h2>
                     <p className="mt-1 text-sm text-white/55">20 รายการล่าสุด</p>
                   </div>
                   <div className="rounded-xl border border-white/15 p-1 text-sm">

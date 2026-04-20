@@ -24,6 +24,7 @@ export default function AuthModal({
 }: AuthModalProps) {
   const [activeTab, setActiveTab] = useState<AuthTab>(initialTab);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [registerAcceptTerms, setRegisterAcceptTerms] = useState(false);
 
   useEffect(() => {
     if (!isOpen) {
@@ -55,7 +56,8 @@ export default function AuthModal({
   };
 
   const handleGoogleSignIn = async () => {
-    if (isSubmitting) {
+    // ถ้าอยู่ใน tab register และไม่ได้ติ๊กยอมรับเงื่อนไข ไม่ให้กด
+    if (isSubmitting || (activeTab === "register" && !registerAcceptTerms)) {
       return;
     }
 
@@ -180,6 +182,7 @@ export default function AuthModal({
                   <AuthRegisterForm
                     onSuccess={closeModal}
                     onBusyChange={setIsSubmitting}
+                    onAcceptTermsChange={setRegisterAcceptTerms}
                   />
                 </motion.div>
               )}
@@ -193,7 +196,7 @@ export default function AuthModal({
 
             <button
               type="button"
-              disabled={isSubmitting}
+              disabled={isSubmitting || (activeTab === "register" && !registerAcceptTerms)}
               onClick={handleGoogleSignIn}
               className="h-11 w-full rounded-xl border border-white/20 bg-[#111] text-sm font-bold tracking-wide text-white transition hover:bg-[#1a1a1a] disabled:cursor-not-allowed disabled:opacity-60"
             >
