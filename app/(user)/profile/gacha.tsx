@@ -40,7 +40,7 @@ export default function GachaHistory() {
     const [claimsLoadingMore, setClaimsLoadingMore] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [claimStatus, setClaimStatus] = useState<"PENDING" | "FULFILLED" | "CANCELLED">("FULFILLED");
+    const [claimStatus, setClaimStatus] = useState<"PENDING" | "FULFILLED" | "CANCELLED">("PENDING");
 
     useEffect(() => {
         setError(null);
@@ -140,6 +140,21 @@ export default function GachaHistory() {
             cell: (info: any) => info.row.original.reward.title,
         },
         {
+            header: "NOTE",
+            accessorKey: "reward.claimMessage",
+            cell: (info: any) => info.row.original.reward.claimMessage || "-",
+        },
+        {
+            header: "ทักมาที่เพจ FB",
+            accessorKey: "pendingMessage",
+            cell: (info: any) => {
+                if (info.row.original.status === "PENDING") {
+                    return <a href="https://www.facebook.com" target="_blank" rel="noopener noreferrer" className="text-blue-400 underline">ทักผ่านเพจ fb</a>;
+                }
+                return "-";
+            },
+        },
+        {
             header: "สถานะ",
             accessorKey: "status",
             cell: (info: any) => {
@@ -193,7 +208,7 @@ export default function GachaHistory() {
                     <h2 className="text-lg lg:text-4xl font-bold text-white">ประวัติรายการ</h2>
                 </div>
                 <div className="flex lg:mt-0 mt-2">
-                    <div className="flex rounded-xl bg-[#1e1e2e] p-0.5 border border-white/20">
+                    <div className="flex rounded-xl bg-[#000000] p-0.5 border border-white/20">
                         <button
                             type="button"
                             onClick={() => setTab("spins")}
@@ -217,7 +232,7 @@ export default function GachaHistory() {
                     </div>   
                     {tab === "claims" && (
                         <select
-                            className=" ml-1 lg:ml-4 py-2 rounded-lg bg-[#181818] text-white border border-white/10 text-sm outline-none"
+                            className=" ml-1 lg:ml-4 py-2 px-1 rounded-lg bg-[#181818] text-white border border-white/10 text-sm "
                             value={claimStatus}
                             onChange={e => setClaimStatus(e.target.value as any)}
                         >

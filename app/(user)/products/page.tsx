@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 
 import { toApiUrl } from "@/lib/api-url";
@@ -234,10 +235,14 @@ export default function ProductsPage() {
               >
                 <article>
                   <div className="relative mb-3 aspect-square overflow-hidden rounded-xl border border-white/10 bg-[#140b0d]">
-                    <img
+                    <Image
                       src={game.imageUrl ?? fallbackCover}
                       alt={game.name}
-                      className="h-full w-full rounded-xl object-cover brightness-90"
+                      fill
+                      className="rounded-xl object-cover brightness-90"
+                      sizes="(max-width: 768px) 100vw, 33vw"
+                      priority={false}
+                      unoptimized={game.imageUrl == null}
                     />
                   </div>
 
