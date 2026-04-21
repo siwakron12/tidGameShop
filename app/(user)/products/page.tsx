@@ -86,20 +86,20 @@ export default function ProductsPage() {
   }, [games]);
 
   // filter เกมด้วย query และ tag (multi-select)
-  const filteredGames = useMemo(() => {
-    return games.filter((game) => {
-      const q = query.trim().toLowerCase();
-      const matchesQuery =
-        q.length === 0 ||
-        game.name.toLowerCase().includes(q) ||
-        game.slug.toLowerCase().includes(q) ||
-        game.providerSlug.toLowerCase().includes(q);
-      const matchesTags =
-        selectedTags.length === 0 ||
-        selectedTags.some((tag) => (game.tags ?? []).includes(tag));
-      return matchesQuery && matchesTags;
-    });
-  }, [games, query, selectedTags]);
+const filteredGames = useMemo(() => {
+  return games.filter((game) => {
+    const q = query.trim().toLowerCase();
+    const matchesQuery =
+      q.length === 0 ||
+      (game.name ?? "").toLowerCase().includes(q) ||
+      (game.slug ?? "").toLowerCase().includes(q) ||
+      (game.providerSlug ?? "").toLowerCase().includes(q);
+    const matchesTags =
+      selectedTags.length === 0 ||
+      selectedTags.some((tag) => (game.tags ?? []).includes(tag));
+    return matchesQuery && matchesTags;
+  });
+}, [games, query, selectedTags]);
 
   return (
     <main className="border-t border-white/10 bg-[radial-gradient(circle_at_top,#22080c_0%,#120607_38%,#090909_72%)]">
