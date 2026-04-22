@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { toApiUrl } from "@/lib/api-url";
-
+import Image from "next/image";
+import { ArrowRight } from "lucide-react";
 type GameItem = {
   id: string;
   slug: string;
@@ -39,8 +40,9 @@ export default function PopularGamesSection() {
               เติมเกมยอดฮิต
             </h2>
           </div>
-          <Link href="/products" className="text-sm text-gray-400/80">
+          <Link href="/products" className="flex items-center gap-1 text-sm text-gray-400/80 hover:text-white transition">
             เลือกดูเกมทั้งหมด
+            <ArrowRight className="text-lg" />
           </Link>
         </div>
 
@@ -54,11 +56,15 @@ export default function PopularGamesSection() {
               <article className="relative h-full overflow-hidden rounded-2xl border border-white/15 shadow-[0_18px_45px_rgba(0,0,0,0.38)] transition-transform duration-200 group-hover:scale-[1.02]">
                 <div className="w-full overflow-hidden">
                   {game.imageUrl ? (
-                    <img
-                      src={game.imageUrl}
-                      alt={game.name}
-                      className="w-full h-auto  transition-all duration-200 group-hover:brightness-90 group-hover:scale-105"
-                    />
+                    <div className="relative aspect-square w-full">
+                      <Image
+                        src={game.imageUrl}
+                        alt={game.name}
+                        fill
+                        className="object-cover transition-all duration-200 group-hover:brightness-90 group-hover:scale-105"
+                        sizes="(max-width: 768px) 100vw, 33vw"
+                      />
+                    </div>
                   ) : (
                     <div className="flex h-44 w-full items-center justify-center bg-[#151515] text-sm text-white/30">
                       {game.name}

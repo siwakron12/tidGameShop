@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { toApiUrl } from "@/lib/api-url";
-
+import Image from "next/image";
 import { ProductOrderFlow } from "./product-order-flow";
 
 type PriceView = {
@@ -101,31 +101,28 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
     <main className="border-t border-white/10 bg-[radial-gradient(circle_at_top,#1f0b10_0%,#120709_42%,#090909_78%)]">
       <section className="w-full pb-4 sm:pb-6 lg:pb-8">
         <div className="overflow-hidden border-y border-white/10 bg-black/35 backdrop-blur-sm sm:rounded-none">
-          <div className="relative h-56 w-full sm:h-72 lg:h-112">
-            <img src={game.bannerUrl ?? fallbackBanner} alt={`${game.name} banner`} className="h-full w-full object-cover" />
-            <div className="absolute inset-0 bg-linear-to-t from-black/85 via-black/35 to-black/10" />
-            <div className="absolute inset-x-0 bottom-0 mx-auto w-full max-w-7xl px-4 p-5 sm:px-6 sm:p-7 lg:px-8 lg:p-8">
-              <p className="inline-flex rounded-md bg-[#f5081b] px-3 py-1 text-xs font-semibold text-white">
-                เติมเกมออนไลน์โครตคุ้ม
-              </p>
-              <h1 className="mt-3 text-3xl font-black uppercase tracking-tight text-white sm:text-4xl lg:text-5xl">{game.name}</h1>
-              <p className="mt-2 max-w-3xl text-sm text-white/80 sm:text-base">
-                {game.description && game.description.trim().length > 0
-                  ? game.description
-                  : "เลือกแพ็กที่ต้องการและยืนยันรายการสั่งซื้อได้ทันที"}
-              </p>
-{/* 
-              <div className="mt-3 flex flex-wrap gap-2 text-xs sm:text-sm">
-                <span className="rounded-full border border-white/20 bg-white/10 px-3 py-1 text-white/90">slug: {game.slug}</span>
-                <span className="rounded-full border border-white/20 bg-white/10 px-3 py-1 text-white/90">
-                  provider: {game.providerSlug}
-                </span>
-                <span className="rounded-full border border-white/20 bg-white/10 px-3 py-1 text-white/90">
-                  แพ็กทั้งหมด: {game.packCount}
-                </span>
-              </div> */}
-            </div>
-          </div>
+        <div className="relative h-56 w-full sm:h-72 lg:h-112">
+  <Image
+    src={game.bannerUrl ?? fallbackBanner}
+    alt={`${game.name} banner`}
+    fill
+    className="object-cover"
+    sizes="100vw"
+    priority
+  />
+  <div className="absolute inset-0 bg-linear-to-t from-black/85 via-black/35 to-black/10" />
+  <div className="absolute inset-x-0 bottom-0 mx-auto w-full max-w-7xl px-4 p-5 sm:px-6 sm:p-7 lg:px-8 lg:p-8">
+    <p className="inline-flex rounded-md bg-[#f5081b] px-3 py-1 text-xs font-semibold text-white">
+      เติมเกมออนไลน์โครตคุ้ม
+    </p>
+    <h1 className="mt-3 text-3xl font-black uppercase tracking-tight text-white sm:text-4xl lg:text-5xl">{game.name}</h1>
+    <p className="mt-2 max-w-3xl text-sm text-white/80 sm:text-base">
+      {game.description && game.description.trim().length > 0
+        ? game.description
+        : "เลือกแพ็กที่ต้องการและยืนยันรายการสั่งซื้อได้ทันที"}
+    </p>
+  </div>
+</div>
         </div>
       </section>
 

@@ -55,7 +55,9 @@ export default function PromptpaySlipFlow({ isLoggedIn, onRequestLogin }: Props)
   const { refreshBalances } = useWalletContext();
 
   const [qrImage, setQrImage] = useState("");
+  const [isGeneratingQr, setIsGeneratingQr] = useState(false);
   const [amount, setAmount] = useState<number | null>(null);
+  const [qrAmount, setQrAmount] = useState<number | null>(null); // amount ที่ใช้สร้าง QR จริง
   const [customAmount, setCustomAmount] = useState("");
   const [session, setSession] = useState<UploadSession | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -69,28 +71,7 @@ export default function PromptpaySlipFlow({ isLoggedIn, onRequestLogin }: Props)
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // สร้าง QR เมื่อ amount เปลี่ยน
-  useEffect(() => {
-    let mounted = true;
-    const generateQr = async () => {
-      try {
-        const payload = generatePayload(PROMPTPAY_PHONE, {
-          amount: amount ?? undefined,
-        });
-        const dataUrl = await QRCode.toDataURL(payload, {
-          errorCorrectionLevel: "M",
-          margin: 1,
-          width: 420,
-          color: { dark: "#000000", light: "#ffffff" },
-        });
-        if (mounted) setQrImage(dataUrl);
-      } catch {
-        toast.error("สร้าง QR ไม่สำเร็จ");
-      }
-    };
-    void generateQr();
-    return () => { mounted = false; };
-  }, [amount]);
+  const isAmountValid = amount !== null && amount >= 10;
 
   // สร้าง upload session อัตโนมัติเมื่อเข้าเพจ
   useEffect(() => {
@@ -103,21 +84,31 @@ export default function PromptpaySlipFlow({ isLoggedIn, onRequestLogin }: Props)
     void autoCreate();
   }, []);
 
+  const handleGenerateQr = async () => {
+    if (!isAmountValid) return;
+    setIsGeneratingQr(true);
+    try {
+      const payload = generatePayload(PROMPTPAY_PHONE, {
+        amount: amount ?? undefined,
+      });
+      const dataUrl = await QRCode.toDataURL(payload, {
+        errorCorrectionLevel: "M",
+        margin: 1,
+        width: 420,
+        color: { dark: "#000000", light: "#ffffff" },
+      });
+      setQrImage(dataUrl);
+      setQrAmount(amount);
+    } catch {
+      toast.error("สร้าง QR ไม่สำเร็จ");
+    } finally {
+      setIsGeneratingQr(false);
+    }
+  };
+
   const handleSelectPreset = (val: number) => {
     setAmount(val);
     setCustomAmount("");
-  };
-
-  const handleCustomAmountChange = (val: string) => {
-    // ล็อคไม่ให้ต่ำกว่า 10
-    let sanitized = val.replace(/^0+/, "");
-    if (sanitized && Number(sanitized) < 10) sanitized = "10";
-    setCustomAmount(sanitized);
-    if (debounceRef.current) clearTimeout(debounceRef.current);
-    debounceRef.current = setTimeout(() => {
-      const num = parseFloat(sanitized);
-      setAmount(!isNaN(num) && num >= 10 ? num : null);
-    }, 400);
   };
 
   const createUploadSession = async () => {
@@ -260,7 +251,7 @@ export default function PromptpaySlipFlow({ isLoggedIn, onRequestLogin }: Props)
           </span>
         </div>
         <p className="text-xs text-white/40 mb-5">
-          เลือกจำนวนเงิน → สแกน QR → อัปโหลดสลิปยืนยัน
+          เลือกจำนวนเงิน → กดสร้าง QR → สแกน → อัปโหลดสลิปยืนยัน
         </p>
 
         {/* Preset amount buttons */}
@@ -289,13 +280,44 @@ export default function PromptpaySlipFlow({ isLoggedIn, onRequestLogin }: Props)
           value={customAmount}
           placeholder="กรอกจำนวนเงินเอง (บาท)"
           onChange={(e) => {
-            let v = e.target.value;
-            if (v && Number(v) < 10) v = "10";
-            handleCustomAmountChange(v);
+            const v = e.target.value.replace(/^0+/, "");
+            setCustomAmount(v);
+            if (debounceRef.current) clearTimeout(debounceRef.current);
+            debounceRef.current = setTimeout(() => {
+              const num = parseFloat(v);
+              setAmount(!isNaN(num) && num >= 10 ? num : null);
+            }, 400);
           }}
-          className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder-white/30 focus:outline-none focus:border-white/30 mb-5"
+          onBlur={(e) => {
+            const num = parseFloat(e.target.value);
+            if (!isNaN(num) && num < 10) {
+              setCustomAmount("10");
+              setAmount(10);
+            }
+          }}
+          className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder-white/30 focus:outline-none focus:border-white/30 mb-2"
         />
-  <p className="text-white/50">ขั้นต่ำ 10 บาท</p>
+        <p className="text-white/50 text-xs mb-4">ขั้นต่ำ 10 บาท</p>
+
+        {/* Generate QR Button */}
+        <button
+          type="button"
+          onClick={handleGenerateQr}
+          disabled={!isAmountValid || isGeneratingQr}
+          className={[
+            "w-full rounded-xl py-3 text-sm font-bold transition mb-5",
+            isAmountValid
+              ? "bg-white text-black hover:bg-white/90 active:scale-[0.98]"
+              : "bg-white/10 text-white/30 cursor-not-allowed",
+          ].join(" ")}
+        >
+          {isGeneratingQr
+            ? "กำลังสร้าง QR..."
+            : !isAmountValid
+              ? "เลือกจำนวนเงินก่อน (ขั้นต่ำ ฿10)"
+              : `สร้าง QR ฿${amount!.toLocaleString("th-TH")}`}
+        </button>
+
         {/* QR */}
         <div className="rounded-2xl border border-white/10 w-fit mx-auto bg-white p-3 mb-3">
           {qrImage ? (
@@ -304,17 +326,19 @@ export default function PromptpaySlipFlow({ isLoggedIn, onRequestLogin }: Props)
               <img src={qrImage} alt="PromptPay QR" className="mx-auto" />
             </div>
           ) : (
-            <div className="flex h-64 items-center justify-center text-sm text-black/40">
-              กำลังสร้าง QR...
+            <div className="flex h-64 w-64 items-center justify-center text-sm text-black text-center px-4">
+              {isAmountValid
+                ? "กดปุ่มด้านบนเพื่อสร้าง QR"
+                : "เลือกจำนวนเงินแล้วกดสร้าง QR"}
             </div>
           )}
         </div>
 
-        {amount && (
+        {qrAmount && (
           <p className="text-center text-xs text-white/40">
             จำนวน{" "}
             <span className="text-white font-semibold">
-              ฿{amount.toLocaleString("th-TH")}
+              ฿{qrAmount.toLocaleString("th-TH")}
             </span>{" "}
             · PromptPay 099-007-2634
           </p>
@@ -343,15 +367,15 @@ export default function PromptpaySlipFlow({ isLoggedIn, onRequestLogin }: Props)
             selectedFile
               ? "border-emerald-500/60 bg-emerald-500/5"
               : isDragging
-              ? "border-[#ff001f]/60 bg-[#ff001f]/5"
-              : "border-white/15 bg-white/[0.02] hover:bg-white/5 hover:border-white/25",
+                ? "border-[#ff001f]/60 bg-[#ff001f]/5"
+                : "border-white/15 bg-white/[0.02] hover:bg-white/5 hover:border-white/25",
           ].join(" ")}
         >
           {selectedFile ? (
             <div className="flex flex-col items-center gap-2 px-4 text-center">
               <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-                <circle cx="12" cy="12" r="10" stroke="#34d399" strokeWidth="1.5"/>
-                <path d="M8 12l3 3 5-5" stroke="#34d399" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                <circle cx="12" cy="12" r="10" stroke="#34d399" strokeWidth="1.5" />
+                <path d="M8 12l3 3 5-5" stroke="#34d399" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
               <span className="text-sm font-semibold text-emerald-400 break-all">
                 {selectedFile.name}
@@ -367,8 +391,8 @@ export default function PromptpaySlipFlow({ isLoggedIn, onRequestLogin }: Props)
           ) : (
             <>
               <svg className="mb-2 opacity-40" width="28" height="28" viewBox="0 0 24 24" fill="none">
-                <path d="M12 3v12m0-12L8 7m4-4 4 4" stroke="white" strokeWidth="1.5" strokeLinecap="round"/>
-                <rect x="3" y="15" width="18" height="6" rx="2" stroke="white" strokeWidth="1.2"/>
+                <path d="M12 3v12m0-12L8 7m4-4 4 4" stroke="white" strokeWidth="1.5" strokeLinecap="round" />
+                <rect x="3" y="15" width="18" height="6" rx="2" stroke="white" strokeWidth="1.2" />
               </svg>
               <span className="text-sm text-white/40 font-medium">
                 ลากไฟล์มาวาง หรือคลิกเพื่อเลือก
@@ -388,59 +412,58 @@ export default function PromptpaySlipFlow({ isLoggedIn, onRequestLogin }: Props)
         />
 
         {/* ปุ่ม desktop: QR มือถือ */}
-       
-          <div className="hidden lg:block mb-3">
-            <button
-              type="button"
-              onClick={handleShowMobileQr}
-              className="w-full rounded-xl bg-[#ff001f] hover:bg-[#ff2742] px-4 py-3 text-sm font-bold text-white transition focus:outline-none"
-            >
-              {!isLoggedIn
-                ? "เข้าสู่ระบบเพื่อชำระสลิปผ่านมือถือ"
-                : showMobileQr
+        <div className="hidden lg:block mb-3">
+          <button
+            type="button"
+            onClick={handleShowMobileQr}
+            className="w-full rounded-xl bg-[#ff001f] hover:bg-[#ff2742] px-4 py-3 text-sm font-bold text-white transition focus:outline-none"
+          >
+            {!isLoggedIn
+              ? "เข้าสู่ระบบเพื่อชำระสลิปผ่านมือถือ"
+              : showMobileQr
                 ? "ซ่อน QR มือถือ"
                 : "ชำระสลิปผ่านมือถือ — ไม่ต้องโยกไฟล์"}
-            </button>
+          </button>
 
-            {showMobileQr && (
-              <div className="mt-4 flex flex-col items-center gap-3">
-                <p className="text-xs text-white/50">
-                  สแกน QR นี้ด้วยมือถือเพื่อเปิดหน้าอัปโหลดสลิปโดยตรง
-                </p>
-                <div className="rounded-xl bg-white p-3">
-                  <img
-                    src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(payMobileUrl)}`}
-                    alt="Mobile Payment QR"
-                    className="mx-auto w-[200px] h-[200px]"
-                  />
-                </div>
-                <a
-                  href={payMobileUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-xs text-blue-400 underline break-all"
-                >
-                  {payMobileUrl}
-                </a>
+          {showMobileQr && (
+            <div className="mt-4 flex flex-col items-center gap-3">
+              <p className="text-xs text-white/50">
+                สแกน QR นี้ด้วยมือถือเพื่อเปิดหน้าอัปโหลดสลิปโดยตรง
+              </p>
+              <div className="rounded-xl bg-white p-3">
+                <img
+                  src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(payMobileUrl)}`}
+                  alt="Mobile Payment QR"
+                  className="mx-auto w-[200px] h-[200px]"
+                />
               </div>
-            )}
-          </div>
+              <a
+                href={payMobileUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs text-blue-400 underline break-all"
+              >
+                {payMobileUrl}
+              </a>
+            </div>
+          )}
+        </div>
 
         {/* ปุ่ม mobile: ยืนยันการชำระ */}
         <button
           type="button"
           onClick={handleConfirmPayment}
           disabled={isLoading || isCreatingSession}
-          className=" inline-flex w-full items-center justify-center rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-sm font-bold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-50"
+          className="inline-flex w-full items-center justify-center rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-sm font-bold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-50"
         >
           {isLoading
             ? "กำลังยืนยันรายการ..."
             : !isLoggedIn
-            ? "เข้าสู่ระบบเพื่อยืนยันการชำระ"
-            : "ยืนยันการชำระ"}
+              ? "เข้าสู่ระบบเพื่อยืนยันการชำระ"
+              : "ยืนยันการชำระ"}
         </button>
-        <p className="text-sm  text-white/50 mt-2">
-         ! เงินที่เติมเข้าจะไม่ถสามารถถอนได้ และจะถูกใช้สำหรับสำหรับทำธุรกรรมในเว็บไซต์เท่านั้น
+        <p className="text-sm text-white/50 mt-2">
+          ! เงินที่เติมเข้าจะไม่สามารถถอนได้ และจะถูกใช้สำหรับทำธุรกรรมในเว็บไซต์เท่านั้น
         </p>
       </div>
 

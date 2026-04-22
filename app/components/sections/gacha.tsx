@@ -7,7 +7,7 @@ import "swiper/swiper.css";
 import Image from "next/image";
 import Link from "next/link";
 const NO_IMAGE = "https://dummyimage.com/640x640/1a1a1a/9ca3af&text=NO+IMAGE";
-
+import { ArrowRight } from "lucide-react";
 export type GachaCampaign = {
   id: string;
   title: string;
@@ -58,7 +58,14 @@ export default function GachaSection() {
             <p className="text-xs font-semibold tracking-[0.2em] text-[#ff5f74]">GACHA CAMPAIGNS</p>
             <h2 className="mt-2 text-2xl font-bold text-white sm:text-3xl">สุ่มกาชา ลุ้นรางวัล</h2>
           </div>
-            <Link href={`/gacha`} className="text-sm text-gray-400/80 sm:block">ดูทั้งหมด</Link>
+          <div className="flex items-center hover:text-white transition-all">
+           <Link href="/gacha" className="flex items-center gap-1 text-sm text-gray-400/80 hover:text-white transition">
+            ดูทั้งหมด
+            <ArrowRight className="text-lg" />
+          </Link>
+   
+          </div>
+
         </div>
         <Swiper
           modules={[Autoplay]}
@@ -99,7 +106,7 @@ export default function GachaSection() {
                   <span className="text-[#B9EF31] font-bold">{c.spinPrice.formatted} บาท/สุ่ม</span>
                   <Link
                     href={`/gacha/${c.id}`}
-                    className="rounded-lg bg-[#ff1536] px-4 py-2 text-white font-bold text-xs hover:bg-[#ff2a48]" 
+                    className="rounded-lg bg-[#ff1536] px-4 py-2 text-white font-bold text-xs hover:bg-[#ff2a48]"
                   >
                     สุ่มเลย
                   </Link>

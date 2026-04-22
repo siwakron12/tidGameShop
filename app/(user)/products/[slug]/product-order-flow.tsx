@@ -10,6 +10,7 @@ import AuthModal from "@/app/components/ui/auth-modal";
 import { useWalletContext } from "../../../components/providers/wallet-context";
 import { UidPickerButton } from "./Uidpickerbutton";
 import { UidSaveButton } from "./Uidsavebutton";
+import Image from "next/image";
 type PriceView = {
     cents: number;
     baht: string;
@@ -36,7 +37,7 @@ type GamePack = {
     sellingPrice: PriceView;
     isCustomPack: boolean;
     bundleItems: BundleItem[];
-    
+
 };
 
 type GameDetail = {
@@ -64,7 +65,7 @@ type ProductOrderFlowProps = {
 };
 
 export function ProductOrderFlow({ game, packs, fallbackCover }: ProductOrderFlowProps) {
-   
+
     const { refreshBalances } = useWalletContext();
     const [uid, setUid] = useState("");
     const [serverId, setServerId] = useState<string>("");
@@ -190,11 +191,15 @@ export function ProductOrderFlow({ game, packs, fallbackCover }: ProductOrderFlo
                     </div>
 
                     <div className="flex  flex-col items-center gap-8 sm:flex-row sm:items-start">
-                        <img
-                            src={game.imageUrl ?? fallbackCover}
-                            alt={game.name}
-                            className="aspect-square  shrink-0 rounded-xl border border-white/10 object-cover w-56"
-                        />
+                        <div className="relative aspect-square w-56 shrink-0">
+                            <Image
+                                src={game.imageUrl ?? fallbackCover}
+                                alt={game.name}
+                                fill
+                                className="rounded-xl border border-white/10 object-cover"
+                                sizes="224px"
+                            />
+                        </div>
 
                         <div className="w-full  self-center">
                             <section className="rounded-2xl border-2 border-[#f45663] bg-[#1c1013] p-2 ">
@@ -224,7 +229,7 @@ export function ProductOrderFlow({ game, packs, fallbackCover }: ProductOrderFlo
                                                 />
                                             ) : (
                                                 <p className="mt-2 text-xs leading-relaxed text-gray-300 lg:text-sm">
-                                              
+
                                                     กรอก UID ของคุณให้ถูกต้อง เลือกแพ็กเกจที่ต้องการ และชำระเงินผ่านเครดิตในระบบ หลังจากนั้นระบบจะทำคาร เติมเกมให้อัตโนมัติ
                                                 </p>
                                             )
@@ -310,14 +315,18 @@ export function ProductOrderFlow({ game, packs, fallbackCover }: ProductOrderFlo
                                     >
                                         {/* รูป pack ถ้ามี */}
                                         {(pack.imageUrl && pack.imageUrl.trim() !== "") && (
-                                            <img
-                                                src={pack.imageUrl}
-                                                alt={pack.name}
-                                                className="mb-2 rounded-lg border border-white/10 object-cover min-w-12  w-20 mx-auto max-h-24 h-auto"
-                                            />
+                                            <div className="relative mx-auto mb-2 h-24 w-20">
+                                                <Image
+                                                    src={pack.imageUrl}
+                                                    alt={pack.name}
+                                                    fill
+                                                    className="rounded-lg border border-white/10 object-cover"
+                                                    sizes="80px"
+                                                />
+                                            </div>
                                         )}
                                         <div className="flex items-start justify-between gap-3">
-                                            
+
                                             <p className="line-clamp-2 text-sm font-semibold text-white sm:text-base">{pack.name}</p>
                                             {pack.bundleItems.length > 0 ? (
                                                 <span className="rounded bg-[#96c93d]/20 px-2 py-0.5 text-[10px] font-semibold text-[#b8ec52]">

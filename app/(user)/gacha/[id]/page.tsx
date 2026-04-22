@@ -233,7 +233,6 @@ export default function Page() {
                         alt={m.reward.title}
                         fill
                         className="object-cover rounded-lg border border-white/10 bg-black relative z-10"
-                        unoptimized={!!m.reward.imageUrl === false}
                       />
                     </div>
                     <div className="text-white font-semibold text-base text-center">{m.reward.title}</div>
