@@ -127,7 +127,6 @@ export default function Page() {
                 alt={campaign.title}
                 fill
                 className="object-cover"
-                unoptimized={!!campaign.imageUrl === false}
               />
             </div>
             <h1 className="text-2xl font-bold text-white mt-4 text-center">{campaign.title}</h1>

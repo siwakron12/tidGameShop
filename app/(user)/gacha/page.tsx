@@ -67,7 +67,6 @@ export default async function GachaPage() {
                   alt={c.title}
                   fill
                   className="rounded-xl border object-cover border-white/10 bg-black"
-                  unoptimized={!!c.imageUrl === false}
                 />
               </div>
             </div>

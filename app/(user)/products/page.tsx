@@ -242,7 +242,7 @@ const filteredGames = useMemo(() => {
                       className="rounded-xl object-cover brightness-90"
                       sizes="(max-width: 768px) 100vw, 33vw"
                       priority={false}
-                      unoptimized={game.imageUrl == null}
+                     
                     />
                   </div>
 

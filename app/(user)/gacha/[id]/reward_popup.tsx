@@ -107,7 +107,6 @@ export default function RewardPopup({ result, onClose }: RewardPopupProps) {
                           alt={reward.title}
                           fill
                           className="object-cover rounded-lg border border-white/10 bg-black"
-                          unoptimized={!!reward.imageUrl === false}
                         />
                       </div>
                       <div className="text-white font-bold text-base text-center">{reward.title}</div>
