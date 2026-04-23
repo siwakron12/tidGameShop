@@ -337,11 +337,7 @@ export function ProductOrderFlow({ game, packs, fallbackCover }: ProductOrderFlo
 
                                         <p className="mt-1 text-xs text-white/60">{pack.isCustomPack ? "Bundle Pack" : "Normal Pack"}</p>
 
-                                        {pack.itemAmount ? (
-                                            <p className="mt-3 text-sm font-semibold text-white/90">
-                                                {pack.itemAmount.toLocaleString()} {pack.itemLabel ?? "หน่วย"}
-                                            </p>
-                                        ) : null}
+                                     
 
                                         {pack.description ? <p className="mt-1 line-clamp-2 text-xs text-white/60">{pack.description}</p> : null}
 

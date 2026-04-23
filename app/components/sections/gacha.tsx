@@ -90,15 +90,16 @@ export default function GachaSection() {
             <SwiperSlide key={c.id}>
               <div className="flex flex-col h-full rounded-2xl border border-white/10 bg-gradient-to-b from-[#181818] to-[#101010] p-5">
                 <div className="flex-1 flex items-center justify-center mb-4">
-                  <div className="relative w-full h-56">
-                    <Image
-                      src={c.imageUrl || NO_IMAGE}
-                      alt={c.title}
-                      fill
-                      className=" rounded-xl border object-cover border-white/10 bg-black"
-                      unoptimized={!!c.imageUrl === false}
-                    />
-                  </div>
+                  
+                        <div className="relative w-[390px] sm:size-98 mx-auto  h-auto ">
+                               <Image
+                                 src={c.imageUrl || NO_IMAGE}
+                                 alt={c.title}
+                                 width={450}
+                                 height={450}
+                                 className="rounded-xl border object-cover border-white/10 bg-black w-full h-auto"
+                               />
+                             </div>
                 </div>
                 <h3 className="text-lg font-semibold text-white mb-1">{c.title}</h3>
                 <p className="text-sm text-white/70 mb-2">{c.description}</p>

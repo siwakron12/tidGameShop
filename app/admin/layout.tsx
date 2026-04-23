@@ -55,7 +55,6 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
           setIsAuthorized(false);
           setIsLoading(false);
           router.push("/");
-          toast.error("Access denied. Admin role required.");
           return;
         }
 
