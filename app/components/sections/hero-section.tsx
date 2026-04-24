@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay } from "swiper/modules";
 import "swiper/swiper.css";
+import { Contact, Gamepad2, MousePointerClick } from "lucide-react";
 
 const games = [
   { id: 1, name: "FF", image: "https://img1.pic.in.th/images/freefire_s470.th.jpg" },
@@ -26,13 +27,13 @@ export default function HeroSection() {
       <div className="relative z-20 mx-auto grid min-h-[80vh] w-full max-w-7xl items-center gap-8 px-4 py-12 sm:px-6 sm:py-14 lg:grid-cols-2 lg:gap-10 lg:px-8 lg:py-20">
         {/* Left Content */}
         <div>
-   
+
           <h1 className="text-4xl text-pretty font-bold leading-tight text-white sm:text-5xl lg:text-6xl">
             <span className="shiny-text">เว็บเติมเกมราคาถูก</span>
             <br />
             <p className="text-lg font-bold text-[#B9EF31]">AUTO TOP-UP PLATFORM</p>
 
-      
+
           </h1>
           <p className="mt-4 max-w-xl text-balance text-sm text-white/75 sm:mt-5 sm:text-base lg:text-lg">
             เติมเกมได้ 24 ชั่วโมงแบบเรียลไทม์
@@ -45,17 +46,22 @@ export default function HeroSection() {
               href="/products"
               className="inline-flex h-11 w-full items-center justify-center rounded-xl bg-[#ff1536] px-5 text-sm font-bold tracking-wide text-white transition hover:bg-[#ff2a48] sm:w-auto"
             >
-              เลือกเกมที่ต้องการเติม
+       <Gamepad2 />
+             
+              <span className="ml-2">  เลือกเกมที่ต้องการเติม</span>
             </Link>
             <Link
-              href="/checkout"
+            target="_blank"
+              href="https://web.facebook.com/titgameshop"
               className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-white/20 px-5 text-sm font-semibold text-white/90 transition hover:border-white/40 hover:text-white sm:w-auto"
             >
-             
-              ติดต่อเรา 
+              <Contact />
+
+              <span>        ติดต่อเรา</span>
             </Link>
+
           </div>
-        
+
         </div>
 
         {/* Right Side - Game Carousel */}

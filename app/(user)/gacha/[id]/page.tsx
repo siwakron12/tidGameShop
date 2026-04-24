@@ -121,7 +121,7 @@ export default function Page() {
         {/* Left: info + spin */}
         <section className="flex-1 flex flex-col items-center justify-center gap-4">
           <div className="w-full flex flex-col items-center justify-center">
-            <div className="relative size-98 rounded-2xl overflow-hidden border border-white/10 bg-black mx-auto">
+            <div style={{ position: "relative", width: "100%", maxWidth: "400px", aspectRatio: "1/1", borderRadius: "1rem", overflow: "hidden", border: "1px solid rgba(255,255,255,0.1)", background: "#000", margin: "0 auto" }}>
               <Image
                 src={campaign.imageUrl || NO_IMAGE}
                 alt={campaign.title}
@@ -226,16 +226,16 @@ export default function Page() {
                     className="rounded-xl p-4 flex flex-col items-center"
                     style={cardStyle}
                   >
-                    <div className="relative w-16 h-16 mb-2 flex items-center justify-center">
-                      <div className="absolute inset-0 rounded-lg pointer-events-none" style={innerAuraStyle} />
+                    <div style={{ width: "100%", maxWidth: "700px",  margin: "0 auto" }}>
                       <Image
                         src={m.reward.imageUrl || NO_IMAGE}
                         alt={m.reward.title}
-                        fill
-                        className="object-cover rounded-lg border border-white/10 bg-black relative z-10"
+                        width={700}
+                        height={700}
+                        className="rounded-lg border border-white/10 bg-black w-full h-auto object-cover"
                       />
                     </div>
-                    <div className="text-white font-semibold text-base text-center">{m.reward.title}</div>
+                    <div className="text-white font-semibold text-base text-center mt-2">{m.reward.title}</div>
                     {m.reward.description && (
                       <div className="text-xs text-white/60 text-center mt-1">{m.reward.description}</div>
                     )}

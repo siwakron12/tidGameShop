@@ -315,29 +315,26 @@ export function ProductOrderFlow({ game, packs, fallbackCover }: ProductOrderFlo
                                     >
                                         {/* รูป pack ถ้ามี */}
                                         {(pack.imageUrl && pack.imageUrl.trim() !== "") && (
-                                            <div className="relative mx-auto mb-2 h-24 w-20">
+                                            <div className="relative mx-auto mb-2 w-20">
                                                 <Image
                                                     src={pack.imageUrl}
                                                     alt={pack.name}
-                                                    fill
-                                                    className="rounded-lg border border-white/10 object-cover"
-                                                    sizes="80px"
+                                                    width={96}
+                                                    height={0}
+                                                    className="rounded-lg border object-cover w-full h-auto"
+                                                    sizes="96px"
                                                 />
                                             </div>
                                         )}
                                         <div className="flex items-start justify-between gap-3">
 
                                             <p className="line-clamp-2 text-sm font-semibold text-white sm:text-base">{pack.name}</p>
-                                            {pack.bundleItems.length > 0 ? (
-                                                <span className="rounded bg-[#96c93d]/20 px-2 py-0.5 text-[10px] font-semibold text-[#b8ec52]">
-                                                    +{pack.bundleItems.length} โบนัส
-                                                </span>
-                                            ) : null}
+
                                         </div>
 
                                         <p className="mt-1 text-xs text-white/60">{pack.isCustomPack ? "Bundle Pack" : "Normal Pack"}</p>
 
-                                     
+
 
                                         {pack.description ? <p className="mt-1 line-clamp-2 text-xs text-white/60">{pack.description}</p> : null}
 
