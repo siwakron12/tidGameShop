@@ -65,7 +65,15 @@ type ProductOrderFlowProps = {
 };
 
 export function ProductOrderFlow({ game, packs, fallbackCover }: ProductOrderFlowProps) {
+    const [cooldown, setCooldown] = useState(0);
 
+    useEffect(() => {
+        if (cooldown <= 0) return;
+        const timer = setTimeout(() => {
+            setCooldown((prev) => prev - 1);
+        }, 1000);
+        return () => clearTimeout(timer);
+    }, [cooldown]);
     const { refreshBalances } = useWalletContext();
     const [uid, setUid] = useState("");
     const [serverId, setServerId] = useState<string>("");
@@ -110,7 +118,8 @@ export function ProductOrderFlow({ game, packs, fallbackCover }: ProductOrderFlo
             (game.uidRequired && uid.trim().length === 0) ||
             (game.serverRequired && (!serverId || serverId.trim().length === 0)) ||
             isLoading ||
-            !acceptTerms
+            !acceptTerms ||
+            cooldown > 0  // ← เพิ่ม
         );
 
     const handleOrder = async () => {
@@ -166,9 +175,27 @@ export function ProductOrderFlow({ game, packs, fallbackCover }: ProductOrderFlo
             if (!response.ok) {
                 throw new Error(json.message ?? "สั่งซื้อไม่สำเร็จ");
             }
-
+        
             toast.success("สั่งซื้อสำเร็จ ระบบกำลังดำเนินการเติมเกมให้คุณ...");
+                await Swal.fire({
+                title: "🎉 การสั่งซื้อสำเร็จ!",
+                html: `สามารถเข้าไปดูสถานะรายการได้ที่<br/><b>หน้าโปรไฟล์ของท่าน</b>`,
+                icon: "success",
+                confirmButtonText: "รับทราบ",
+                background: "#13161c",
+                color: "#f3f4f6",
+                confirmButtonColor: "#ef4444",
+            });
             await refreshBalances();
+
+            useEffect(() => {
+                if (cooldown <= 0) return;
+                const timer = setTimeout(() => {
+                    setCooldown((prev) => prev - 1);
+                }, 1000);
+                return () => clearTimeout(timer);
+            }, [cooldown]);
+
         } catch (error) {
             const message = error instanceof Error ? error.message : "เกิดข้อผิดพลาด";
             toast.error(message);
@@ -413,7 +440,11 @@ export function ProductOrderFlow({ game, packs, fallbackCover }: ProductOrderFlo
                             ].join(" ")}
                         >
                             {isLoggedIn ? (
-                                isLoading ? "กำลังสั่งซื้อ..." : "ซื้อเลย"
+                                isLoading
+                                    ? "กำลังสั่งซื้อ..."
+                                    : cooldown > 0
+                                        ? `${cooldown} `  // ← เพิ่ม
+                                        : "ซื้อเลย"
                             ) : (
                                 <span className="flex items-center justify-center gap-2">
                                     <User size={18} />

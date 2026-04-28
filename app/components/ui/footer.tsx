@@ -1,8 +1,9 @@
 import Link from "next/link";
 
 const serviceLinks = [
-  { label: "ร้านค้า", href: "/products" },
-  { label: "เติมเกม", href: "/topup" },
+  { label: "เติมเกม", href: "/products" },
+  { label: "เติมเงิน", href: "/topup" },
+  { label: "สุ่มรางวัล", href: "/gacha" },
 ];
 
 export default function Footer() {
@@ -21,7 +22,7 @@ export default function Footer() {
           <div>
             <h3 className="text-xl font-bold text-white">ฝ่ายบริการลูกค้า</h3>
             <p className="mt-3 text-sm text-white/75">เปิดให้บริการ 08:00 - 00:00 น. ทุกวันไม่มีวันหยุด</p>
-            <p className="mt-2 text-sm text-white/60">ติดต่อผ่านแชทหน้าเว็บไซต์ได้ตลอดเวลา</p>
+            <p className="mt-2 text-sm text-white/60">ติดต่อผ่านแชทเพจ Facebook ได้ตลอดเวลา</p>
           </div>
 
           <div>
@@ -42,7 +43,8 @@ export default function Footer() {
             <p className="mt-3 text-sm text-white/75">Contact US</p>
             <div className="mt-3 flex items-center gap-3">
               <a
-                href="#"
+                target="_blank"
+                href="https://web.facebook.com/titgameshop/?locale=th_TH"
                 aria-label="Facebook"
                 className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-white/15 bg-white/5 text-lg text-white/90 transition hover:border-[#ff6f84] hover:text-white"
               >
