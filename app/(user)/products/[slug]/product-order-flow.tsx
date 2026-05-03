@@ -187,18 +187,10 @@ export function ProductOrderFlow({ game, packs, fallbackCover }: ProductOrderFlo
                 confirmButtonColor: "#ef4444",
             });
             await refreshBalances();
-
-            useEffect(() => {
-                if (cooldown <= 0) return;
-                const timer = setTimeout(() => {
-                    setCooldown((prev) => prev - 1);
-                }, 1000);
-                return () => clearTimeout(timer);
-            }, [cooldown]);
+            setCooldown(3);
 
         } catch (error) {
             const message = error instanceof Error ? error.message : "เกิดข้อผิดพลาด";
-            toast.error(message);
         } finally {
             setIsLoading(false);
         }
